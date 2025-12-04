@@ -1,0 +1,2784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Malaysia University Programme Finder</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- React + ReactDOM -->
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+<!-- Babel compiler -->
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<style>
+/* ==========================================================
+   GLOBAL RESET & VARIABLES
+   ========================================================== */
+:root {
+  --bg: #f6f8fa;
+  --text: #1a1a1a;
+  --card-bg: #ffffff;
+  --card-border: #dcdcdc;
+  --primary: #0066ff;
+  --primary-hover: #004ecc;
+  --shadow: rgba(0,0,0,0.08);
+  --secondary-text: #666666;
+}
+
+.dark {
+  --bg: #0f172a;
+  --text: #e2e8f0;
+  --card-bg: #1e293b;
+  --card-border: #334155;
+  --primary: #38bdf8;
+  --primary-hover: #0ea5e9;
+  --shadow: rgba(255,255,255,0.05);
+  --secondary-text: #94a3b8;
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+/* ==========================================================
+   CONTAINER
+   ========================================================== */
+.app-container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 40px 20px;
+}
+
+/* ==========================================================
+   HEADER + LOGO
+   ========================================================== */
+.header-box {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.header-logo {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+}
+
+.header-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 16px;
+  opacity: 0.8;
+  margin-bottom: 25px;
+}
+
+/* ==========================================================
+   LANGUAGE + DARK MODE BUTTONS
+   ========================================================== */
+.controls-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.lang-btn, .mode-btn {
+  background: var(--primary);
+  border: none;
+  padding: 10px 18px;
+  color: white;
+  font-size: 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+  font-weight: 500;
+}
+
+.lang-btn:hover, .mode-btn:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================
+   SEARCH + SELECT INPUTS
+   ========================================================== */
+.input-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px var(--shadow);
+  margin-bottom: 20px;
+}
+
+.input-label {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  display: block;
+  color: var(--text);
+}
+
+.input-box, .select-box {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  color: var(--text);
+  font-size: 14px;
+  box-sizing: border-box;
+  margin-bottom: 15px;
+}
+
+.input-box:focus, .select-box:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+}
+
+/* ==========================================================
+   FILTER / SORT BAR
+   ========================================================== */
+.filter-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 25px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.sort-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sort-select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  color: var(--text);
+  font-size: 14px;
+}
+
+/* ==========================================================
+   RESULT TITLE
+   ========================================================== */
+.result-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.result-highlight {
+  color: var(--primary);
+}
+
+/* ==========================================================
+   UNIVERSITY CARDS GRID
+   ========================================================== */
+.uni-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.uni-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 4px 10px var(--shadow);
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.uni-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--primary);
+  box-shadow: 0 6px 16px var(--shadow);
+}
+
+.uni-name {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--primary);
+}
+
+.uni-small {
+  font-size: 13px;
+  color: var(--secondary-text);
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.uni-small strong {
+  font-weight: 600;
+}
+
+/* ==========================================================
+   WEBSITE LINK BUTTON
+   ========================================================== */
+.website-link {
+  display: inline-block;
+  margin-top: auto; /* Pushes button to the bottom */
+  padding: 8px 14px;
+  background: var(--primary);
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: 0.2s;
+  text-align: center;
+}
+
+.website-link:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================
+   PRICE BADGE
+   ========================================================== */
+.price-tag {
+  margin-top: 12px;
+  margin-bottom: 15px;
+  display: inline-block;
+  background: var(--primary);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ==========================================================
+   EMPTY RESULT MESSAGE
+   ========================================================== */
+.no-result {
+  color: #ef4444;
+  font-size: 14px;
+  margin-top: 20px;
+  text-align: center;
+  padding: 20px;
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: 10px;
+}
+
+.info-message {
+  color: var(--text);
+  opacity: 0.6;
+  font-size: 14px;
+  margin-top: 20px;
+  text-align: center;
+  padding: 20px;
+}
+
+/* ==========================================================
+   RTL SUPPORT FOR ARABIC
+   ========================================================== */
+.rtl {
+  direction: rtl;
+  text-align: right;
+}
+
+.ltr {
+  direction: ltr;
+  text-align: left;
+}
+
+/* ==========================================================
+   RESPONSIVE
+   ========================================================== */
+@media (max-width: 768px) {
+  .header-title {
+    font-size: 22px;
+  }
+  
+  .uni-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .controls-row {
+    flex-direction: column;
+  }
+  
+  .filter-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .sort-wrapper {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .sort-select {
+    flex: 1;
+  }
+}
+</style>
+</head>
+
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+
+/* ============================================
+   NEW DATA MATRICES (Duration & IELTS)
+============================================ */
+// Columns: UM, USM, UKM, UPM, UTM, UiTM, UUM
+const DURATION_MATRIX = {
+  "Foundation in Science": ["1.00", "N/A", "1", "1.00", "1", "1", "N/A"],
+  "Foundation in Engineering": ["Via Sci", "N/A", "Via Sci", "Via Sci", "1", "1", "N/A"],
+  "Foundation in Business": ["N/A", "N/A", "N/A", "N/A", "1", "1", "1.00"],
+  "Foundation in IT": ["N/A", "N/A", "N/A", "N/A", "1", "Via Sci", "N/A"],
+  "Foundation in Arts & Social Sc.": ["1.00", "N/A", "N/A", "N/A", "N/A", "1", "1.00"],
+  "Foundation in Computing": ["N/A", "N/A", "N/A", "N/A", "1", "Via Sci", "N/A"],
+  "Foundation in Health Sciences": ["N/A", "N/A", "N/A", "1", "N/A", "N/A", "N/A"],
+  "Foundation in Design": ["1", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A"],
+  "A-Level Science": ["N/A", "N/A", "N/A", "N/A", "N/A", "1.5 - 2", "N/A"],
+  "A-Level Arts": ["N/A", "N/A", "N/A", "N/A", "N/A", "1.5 - 2", "N/A"],
+  "AUSMAT": ["N/A", "N/A", "N/A", "N/A", "N/A", "1", "N/A"],
+  "IB Diploma": ["N/A", "N/A", "N/A", "N/A", "N/A", "2", "N/A"],
+  "Diploma Business Admin": ["2.50", "N/A", "N/A", "3", "2.5", "2.5", "N/A"],
+  "Diploma Accounting": ["2.50", "N/A", "N/A", "3", "2.5", "2.5", "N/A"],
+  "Diploma Finance": ["2.5", "N/A", "N/A", "N/A", "N/A", "2.5", "N/A"],
+  "Diploma Marketing": ["2.5", "N/A", "N/A", "N/A", "2.5", "2.5", "N/A"],
+  "Diploma HRM": ["2.5", "N/A", "N/A", "N/A", "2.5", "N/A", "N/A"],
+  "Diploma IT": ["2.50", "N/A", "N/A", "3", "2.5", "2.5", "N/A"],
+  "Diploma Computer Science": ["2.5", "N/A", "N/A", "3", "2.5", "2.5", "N/A"],
+  "Diploma Software Engineering": ["N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A"],
+  "Diploma Networking Security": ["N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A"],
+  "Diploma Mechanical Engineering": ["N/A", "N/A", "N/A", "3", "3", "2.5", "N/A"],
+  "Diploma Electrical Engineering": ["N/A", "N/A", "N/A", "3", "3", "2.5", "N/A"],
+  "Diploma Civil Engineering": ["N/A", "N/A", "N/A", "N/A", "3", "2.5", "N/A"],
+  "Diploma Mechatronics": ["N/A", "N/A", "N/A", "N/A", "3", "N/A", "N/A"],
+  "Diploma Nursing": ["3", "3", "N/A", "N/A", "N/A", "3", "N/A"],
+  "Diploma Pharmacy": ["N/A", "N/A", "N/A", "N/A", "N/A", "3", "N/A"],
+  "Diploma Medical Lab Tech": ["3", "3", "3", "N/A", "N/A", "3", "N/A"],
+  "Diploma Hotel Management": ["N/A", "N/A", "N/A", "N/A", "N/A", "2.5", "N/A"],
+  "Diploma Culinary Arts": ["N/A", "N/A", "N/A", "N/A", "N/A", "2.5", "N/A"],
+  "Diploma Tourism": ["N/A", "N/A", "N/A", "N/A", "N/A", "2.5", "N/A"],
+  "Diploma Early Childhood": ["2.5", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A"],
+  "Diploma Mass Communication": ["N/A", "N/A", "N/A", "N/A", "N/A", "2.5", "N/A"],
+  "Diploma Graphic Design": ["N/A", "N/A", "N/A", "N/A", "N/A", "2.5", "N/A"],
+  "BBA": ["3.50", "4", "3", "4.00", "4", "3", "4.00"],
+  "Bachelor Accounting": ["4.00", "4", "4", "4.00", "4", "4", "4"],
+  "Bachelor Finance": ["3.50", "4", "3", "4", "N/A", "3", "4.00"],
+  "Bachelor Marketing": ["3.5", "4", "3", "4", "4", "3", "4"],
+  "Bachelor HR": ["N/A", "N/A", "N/A", "4.00", "4", "3", "4"],
+  "Bachelor Economics": ["3.50", "4", "3", "4.00", "N/A", "3", "4.00"],
+  "Bachelor Mechanical Engineering": ["4.00", "4", "4", "4.00", "4", "4", "N/A"],
+  "Bachelor Civil Engineering": ["4.00", "4", "4", "4.00", "4", "4", "N/A"],
+  "Bachelor Chemical Engineering": ["4.00", "4", "4", "4.00", "4", "4", "N/A"],
+  "Bachelor Petroleum Engineering": ["N/A", "N/A", "N/A", "4", "4", "4", "N/A"],
+  "Bachelor Electrical Engineering": ["4.00", "4", "4", "4.00", "4", "4", "N/A"],
+  "Bachelor Electronic Engineering": ["N/A", "4", "4", "4.00", "4", "4", "N/A"],
+  "Bachelor Biomedical Engineering": ["4.00", "N/A", "N/A", "N/A", "4", "N/A", "N/A"],
+  "Bachelor Naval/Offshore Eng": ["N/A", "N/A", "N/A", "N/A", "4", "N/A", "N/A"],
+  "Bachelor CS Software Eng": ["3.50", "4", "3.5", "4.00", "4", "3.5", "4.00"],
+  "Bachelor CS Network Security": ["3.50", "4", "3.5", "4.00", "4", "3.5", "4.00"],
+  "Bachelor CS Multimedia": ["3.50", "4", "3.5", "4.00", "4", "3.5", "4.00"],
+  "Bachelor CS Data Science": ["3.5", "4", "3.5", "N/A", "4", "3.5", "4.00"],
+  "Bachelor AI": ["3.50", "4", "3.5", "4", "4", "3.5", "4.00"],
+  "Bachelor Architecture": ["3.00", "3", "3", "4.00", "3", "3.5", "N/A"],
+  "Bachelor Quantity Surveying": ["3.50", "3", "N/A", "N/A", "4", "3.5", "3.5"],
+  "Bachelor Construction": ["3.50", "3", "N/A", "N/A", "4", "3.5", "4"],
+  "Bachelor Urban Planning": ["4.00", "4", "N/A", "N/A", "4", "4", "N/A"],
+  "Bachelor Landscape Architecture": ["N/A", "N/A", "N/A", "4.00", "4", "4", "N/A"],
+  "Bachelor Real Estate": ["3.50", "N/A", "N/A", "N/A", "4", "3.5", "N/A"],
+  "Bachelor Physics": ["3.50", "4", "3", "4.00", "4", "3", "N/A"],
+  "Bachelor Chemistry": ["3.50", "4", "3", "4.00", "4", "3", "N/A"],
+  "Bachelor Biology": ["3.50", "4", "3", "4.00", "4", "3", "N/A"],
+  "Bachelor Industrial Chemistry": ["N/A", "4", "N/A", "4.00", "4", "3", "N/A"],
+  "Bachelor Industrial Maths": ["N/A", "4", "3", "4", "4", "3", "N/A"],
+  "Bachelor Statistics": ["3.50", "4", "3", "4.00", "N/A", "3", "4"],
+  "Bachelor Biotechnology": ["3.50", "4", "3", "4.00", "4", "3", "N/A"],
+  "MBBS": ["5.00", "5", "5.00", "5", "N/A", "5", "N/A"],
+  "Bachelor Pharmacy": ["4.00", "4", "4", "N/A", "N/A", "4", "N/A"],
+  "Bachelor Nursing": ["4.00", "4", "4", "4.00", "N/A", "4", "N/A"],
+  "Bachelor Medical Science": ["N/A", "4", "N/A", "4.00", "N/A", "N/A", "N/A"],
+  "Bachelor Psychology": ["N/A", "4", "3", "N/A", "4", "N/A", "4.00"],
+  "Bachelor HRD": ["N/A", "N/A", "N/A", "4.00", "4", "N/A", "N/A"],
+  "Bachelor Mass Communication": ["3.50", "4", "3", "3.50", "N/A", "3", "4.00"],
+  "Bachelor TESL": ["4.00", "4", "4", "4.00", "4", "4", "4.00"],
+  "Bachelor Music": ["3.00", "4", "N/A", "4.00", "N/A", "3", "N/A"],
+  "MBA": ["1.50", "2", "1", "1.50", "2", "1.50", "1.50"],
+  "MBA Online": ["1.5", "2", "1", "1.5", "1.5", "1.5", "1.5"],
+  "Master Management": ["1.50", "2", "1.00", "1.50", "2", "1.5", "1.5"],
+  "Master Architecture": ["2.00", "2", "2.00", "2.00", "2", "2.00", "N/A"],
+  "MSc Engineering": ["1 - 3", "1 - 3", "1 - 3", "1 - 3", "1 - 3", "1 - 3", "N/A"],
+  "MSc Medical Sciences": ["1 - 3", "1 - 3", "1 - 3", "1 - 3", "N/A", "1 - 3", "N/A"],
+  "Master Education": ["1.50", "1.5", "1.50", "2.00", "2", "1.5", "1.5"],
+  "Master Education (Research)": ["2.00", "2", "2.00", "2.00", "2", "2", "2"],
+  "MPhil Business": ["2", "2", "2.00", "2.00", "2", "2", "2"],
+  "PhD Business": ["3+", "3+", "3+", "3+", "3+", "3+", "3+"],
+  "PhD Engineering": ["3+", "3+", "3+", "3+", "3+", "3+", "N/A"],
+  "PhD IT": ["3+", "3+", "3+", "3+", "3+", "3+", "3+"],
+  "PhD Education": ["3+", "3+", "3+", "3+", "3+", "3+", "3+"],
+  "PhD Science": ["3+", "3+", "3+", "3+", "3+", "3+", "N/A"],
+  "PhD Medical": ["3+", "3+", "3+", "3+", "3+", "3+", "N/A"],
+  "DBA": ["3 - 4", "3 - 4", "3 - 4", "3 - 4", "3 - 4", "3 - 4", "3 - 4"]
+};
+
+// Columns: UM, USM, UKM, UPM, UTM, UiTM, UUM, IIUM
+const IELTS_MATRIX = {
+  "Foundation in Science": ["5.00", "N/A", "5", "5.00", "5", "5", "N/A", "5"],
+  "Foundation in Engineering": ["5.00", "N/A", "5", "5", "5", "5", "N/A", "5"],
+  "Foundation in Business": ["N/A", "N/A", "N/A", "N/A", "5", "5", "5.00", "5"],
+  "Foundation in IT": ["N/A", "N/A", "N/A", "N/A", "5", "5", "N/A", "5"],
+  "Foundation in Arts & Social Sc.": ["5.00", "N/A", "N/A", "N/A", "N/A", "5", "5.00", "6"],
+  "Foundation in Computing": ["N/A", "N/A", "N/A", "N/A", "5", "5", "N/A", "5"],
+  "Foundation in Health Sciences": ["N/A", "N/A", "N/A", "5", "N/A", "N/A", "N/A", "5"],
+  "Foundation in Design": ["5", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "5"],
+  "A-Level Science": ["N/A", "N/A", "N/A", "N/A", "N/A", "5", "N/A", "N/A"],
+  "A-Level Arts": ["N/A", "N/A", "N/A", "N/A", "N/A", "5", "N/A", "N/A"],
+  "AUSMAT": ["N/A", "N/A", "N/A", "N/A", "N/A", "5", "N/A", "N/A"],
+  "IB Diploma": ["N/A", "N/A", "N/A", "N/A", "N/A", "5", "N/A", "N/A"],
+  "Diploma Business Admin": ["5.00", "N/A", "N/A", "5", "5", "5", "N/A", "5"],
+  "Diploma Accounting": ["5.00", "N/A", "N/A", "5", "5", "5", "N/A", "5"],
+  "Diploma Finance": ["5", "N/A", "N/A", "N/A", "N/A", "5", "N/A", "N/A"],
+  "Diploma Marketing": ["5", "N/A", "N/A", "N/A", "5", "5", "N/A", "N/A"],
+  "Diploma HRM": ["5", "N/A", "N/A", "N/A", "5", "N/A", "N/A", "N/A"],
+  "Diploma IT": ["5.00", "N/A", "N/A", "5", "5", "5", "N/A", "5"],
+  "Diploma Computer Science": ["5", "N/A", "N/A", "5", "5", "5", "N/A", "5"],
+  "Diploma Software Engineering": ["N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A"],
+  "Diploma Networking Security": ["N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A"],
+  "Diploma Mechanical Engineering": ["N/A", "N/A", "N/A", "5", "5", "5", "N/A", "N/A"],
+  "Diploma Electrical Engineering": ["N/A", "N/A", "N/A", "5", "5", "5", "N/A", "N/A"],
+  "Diploma Civil Engineering": ["N/A", "N/A", "N/A", "N/A", "5", "5", "N/A", "N/A"],
+  "Diploma Mechatronics": ["N/A", "N/A", "N/A", "N/A", "5", "N/A", "N/A", "N/A"],
+  "Diploma Nursing": ["5.5", "5.5", "N/A", "N/A", "N/A", "5", "N/A", "5.5"],
+  "Diploma Pharmacy": ["N/A", "N/A", "N/A", "N/A", "N/A", "5", "N/A", "5.5"],
+  "Diploma Medical Lab Tech": ["5.5", "5.5", "5", "N/A", "N/A", "5", "N/A", "N/A"],
+  "Diploma Hotel Management": ["N/A", "N/A", "N/A", "N/A", "N/A", "5", "N/A", "N/A"],
+  "Diploma Culinary Arts": ["N/A", "N/A", "N/A", "N/A", "N/A", "5", "N/A", "N/A"],
+  "Diploma Tourism": ["N/A", "N/A", "N/A", "N/A", "N/A", "5", "N/A", "N/A"],
+  "Diploma Early Childhood": ["5", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A"],
+  "Diploma Mass Communication": ["N/A", "N/A", "N/A", "N/A", "N/A", "5", "N/A", "N/A"],
+  "Diploma Graphic Design": ["N/A", "N/A", "N/A", "N/A", "N/A", "5", "N/A", "N/A"],
+  "BBA": ["5.50", "5", "5.5", "5.50", "6", "5", "5.50", "6.00"],
+  "Bachelor Accounting": ["5.50", "5", "5.5", "5.50", "6", "5", "5.5", "6.00"],
+  "Bachelor Finance": ["5.50", "5", "5.5", "5.5", "N/A", "5", "5.50", "6.00"],
+  "Bachelor Marketing": ["5.5", "5", "5.5", "5.5", "6", "5", "5.5", "6.00"],
+  "Bachelor HR": ["N/A", "N/A", "N/A", "5.50", "6", "5", "5.5", "N/A"],
+  "Bachelor Economics": ["5.50", "5", "5.5", "5.50", "N/A", "5", "5.50", "6.00"],
+  "Bachelor Mechanical Engineering": ["5.50", "5", "5", "5.50", "6", "5", "N/A", "6.00"],
+  "Bachelor Civil Engineering": ["5.50", "5", "5", "5.50", "6", "5", "N/A", "6.00"],
+  "Bachelor Chemical Engineering": ["5.50", "5", "5", "5.50", "6", "5", "N/A", "6.00"],
+  "Bachelor Petroleum Engineering": ["N/A", "N/A", "N/A", "5.5", "5.5", "5", "N/A", "N/A"],
+  "Bachelor Electrical Engineering": ["5.50", "5", "5", "5.50", "6", "5", "N/A", "6.00"],
+  "Bachelor Electronic Engineering": ["N/A", "5", "5", "5.50", "6", "5", "N/A", "6.00"],
+  "Bachelor Biomedical Engineering": ["5.50", "N/A", "N/A", "N/A", "6", "N/A", "N/A", "N/A"],
+  "Bachelor Naval/Offshore Eng": ["N/A", "N/A", "N/A", "N/A", "5.5", "N/A", "N/A", "N/A"],
+  "Bachelor CS Software Eng": ["5.50", "5", "5", "5.50", "6", "5", "5.50", "6.00"],
+  "Bachelor CS Network Security": ["5.50", "5", "5", "5.50", "6", "5", "5.50", "6.00"],
+  "Bachelor CS Multimedia": ["5.50", "5", "5", "5.50", "6", "5", "5.50", "6.00"],
+  "Bachelor CS Data Science": ["5.5", "5", "5", "N/A", "6", "5", "5.50", "6.00"],
+  "Bachelor AI": ["5.50", "5", "5", "5.5", "6", "5", "5.50", "6.00"],
+  "Bachelor Architecture": ["5.50", "5", "5", "5.50", "6", "5", "N/A", "6.00"],
+  "Bachelor Quantity Surveying": ["5.50", "5", "N/A", "N/A", "6", "5", "5.5", "6.00"],
+  "Bachelor Construction": ["5.50", "5", "N/A", "N/A", "6", "5", "5.5", "N/A"],
+  "Bachelor Urban Planning": ["5.50", "5", "N/A", "N/A", "6", "5", "N/A", "6.00"],
+  "Bachelor Landscape Architecture": ["N/A", "N/A", "N/A", "5.50", "6", "5", "N/A", "6.00"],
+  "Bachelor Real Estate": ["5.50", "N/A", "N/A", "N/A", "6", "5", "N/A", "N/A"],
+  "Bachelor Physics": ["5.50", "5", "5", "5.50", "6", "5", "N/A", "6.00"],
+  "Bachelor Chemistry": ["5.50", "5", "5", "5.50", "6", "5", "N/A", "6.00"],
+  "Bachelor Biology": ["5.50", "5", "5", "5.50", "6", "5", "N/A", "6.00"],
+  "Bachelor Industrial Chemistry": ["N/A", "5", "N/A", "5.50", "6", "5", "N/A", "N/A"],
+  "Bachelor Industrial Maths": ["N/A", "5", "5", "5.5", "6", "5", "N/A", "6.00"],
+  "Bachelor Statistics": ["5.50", "5", "5", "5.50", "N/A", "5", "5.5", "6.00"],
+  "Bachelor Biotechnology": ["5.50", "5", "5", "5.50", "6", "5", "N/A", "6.00"],
+  "MBBS": ["6.00", "5.5", "6.00", "6", "N/A", "6", "N/A", "6.00"],
+  "Bachelor Pharmacy": ["6.00", "5", "6", "N/A", "N/A", "6", "N/A", "6.00"],
+  "Bachelor Nursing": ["5.50", "5", "5.5", "5.50", "N/A", "5", "N/A", "6.00"],
+  "Bachelor Medical Science": ["N/A", "5", "N/A", "6.00", "N/A", "N/A", "N/A", "N/A"],
+  "Bachelor Psychology": ["N/A", "5", "5.5", "N/A", "6", "N/A", "5.50", "6.00"],
+  "Bachelor HRD": ["N/A", "N/A", "N/A", "5.50", "6", "N/A", "N/A", "N/A"],
+  "Bachelor Mass Communication": ["5.50", "5", "5.5", "5.50", "N/A", "5", "5.50", "6.00"],
+  "Bachelor TESL": ["6.00", "5", "6", "6.00", "6", "6", "6.00", "6.00"],
+  "Bachelor Music": ["5.50", "5", "N/A", "5.50", "N/A", "5", "N/A", "N/A"],
+  "MBA": ["6.00", "6", "6", "6.00", "6", "6.00", "6.00", "6.00"],
+  "MBA Online": ["6", "6", "6", "6", "6", "6", "6", "6"],
+  "Master Management": ["6.00", "6", "6.00", "6.00", "6", "6", "6", "6.00"],
+  "Master Architecture": ["6.00", "5", "6.00", "6.00", "6", "5.00", "N/A", "6.00"],
+  "MSc Engineering": ["6.00", "5", "6.00", "6.00", "6", "5", "N/A", "6.00"],
+  "MSc Medical Sciences": ["6.00", "5", "6.00", "6.00", "N/A", "5", "N/A", "6.00"],
+  "Master Education": ["6.00", "5", "6.00", "6.00", "6", "5", "6", "6.00"],
+  "Master Education (Research)": ["6.00", "5", "6.00", "6.00", "6", "5", "6", "6.00"],
+  "MPhil Business": ["6", "5", "6.00", "6.00", "6", "5", "6", "6.00"],
+  "PhD Business": ["6.00", "5", "6.00", "6.00", "6", "5", "6", "6.00"],
+  "PhD Engineering": ["6.00", "5", "6.00", "6.00", "6", "5.00", "N/A", "6.00"],
+  "PhD IT": ["6.00", "5", "6.00", "6.00", "6", "5.00", "6", "6.00"],
+  "PhD Education": ["6.00", "5", "6.00", "6.00", "6", "5.00", "6", "6.00"],
+  "PhD Science": ["6.00", "5", "6.00", "6.00", "6", "5.00", "N/A", "6.00"],
+  "PhD Medical": ["6.00", "5", "6.00", "6.00", "6", "5.00", "N/A", "6.00"],
+  "DBA": ["6.00", "5", "6", "6.00", "6", "5.00", "6", "6.00"]
+};
+
+// Helper to get data from matrix safely
+const getMatrixData = (matrix, programme, index, defaultVal = "N/A") => {
+  if (!matrix[programme]) return defaultVal;
+  const val = matrix[programme][index];
+  return (!val || val === "N/A") ? "Check Website" : val;
+};
+
+// Mapping index for matrix based on uni shortname
+const UNI_INDEX_MAP = {
+  "UM": 0,
+  "USM": 1,
+  "UKM": 2,
+  "UPM": 3,
+  "UTM": 4,
+  "UiTM": 5,
+  "UUM": 6,
+  "IIUM": 7
+};
+
+/* ============================================
+   TRANSLATION HELPER
+============================================ */
+const translate = (lang, labels, key) =>
+  labels[key] ? labels[key][lang] : key;
+
+/* ============================================
+   UNIVERSITY WEBSITE LINKS
+============================================ */
+const universityWebsites = {
+  "UM": "https://www.um.edu.my",
+  "USM": "https://www.usm.my",
+  "UKM": "https://www.ukm.my",
+  "UPM": "https://www.upm.edu.my",
+  "UTM": "https://www.utm.my",
+  "UiTM": "https://www.uitm.edu.my",
+  "UUM": "https://www.uum.edu.my",
+  "IIUM": "https://www.iium.edu.my",
+  "UNIMAS": "https://www.unimas.my",
+  "UMS": "https://www.ums.edu.my",
+  "UPSI": "https://www.upsi.edu.my",
+  "USIM": "https://www.usim.edu.my",
+  "UTeM": "https://www.utem.edu.my",
+  "UTHM": "https://www.uthm.edu.my"
+};
+
+/* ============================================
+   UNIVERSITY TYPES DICTIONARY
+============================================ */
+const universityTypes = {
+  "UM": "Public", "USM": "Public", "UKM": "Public", "UPM": "Public", "UTM": "Public", "UiTM": "Public", "UUM": "Public", "IIUM": "Public", "UNIMAS": "Public", "UMS": "Public", "UPSI": "Public", "USIM": "Public", "UTeM": "Public", "UTHM": "Public", "UMPSA": "Public", "UniMAP": "Public", "UMT": "Public", "UniSZA": "Public", "UPNM": "Public", "UMK": "Public",
+  "APU": "Private", "AIMST": "Private", "AIU": "Private", "MEDIU": "Private", "Binary": "Private", "HELP": "Private", "IUKL": "Private", "IMU": "Private", "INTI": "Private", "LUC": "Private", "MAHSA": "Private", "MSU": "Private", "MIU": "Private", "MMU": "Private", "Nilai": "Private", "OUM": "Private", "UNITAR": "Private", "UIM": "Private", "UniKL": "Private", "UNITEN": "Private", "UniRazak": "Private", "UTAR": "Private", "UNISEL": "Private", "UCSI": "Private", "WOU": "Private", "Meritus": "Private", "SEGi": "Private", "Sunway": "Private", "Taylor's": "Private", "CityU": "Private", "UoC": "Private", "AeU": "Private",
+  "Monash Malaysia": "Foreign Branch", "UNM": "Foreign Branch", "Heriot-Watt Malaysia": "Foreign Branch", "Curtin Malaysia": "Foreign Branch", "SUTS": "Foreign Branch", "NUMed": "Foreign Branch", "XMUM": "Foreign Branch"
+};
+
+/* ============================================
+   ADVANCED MULTILINGUAL SYNONYM ENGINE
+============================================ */
+const synonyms = {
+  // ====== MEDICAL & HEALTH ======
+  "dentist": "Bachelor Dentistry",
+  "dental": "Bachelor Dentistry",
+  "master dentist": "Master Dentistry",
+  "طب أسنان": "Bachelor Dentistry",
+  "ماجستير طب أسنان": "Master Dentistry",
+
+  "doctor": "MBBS",
+  "medicine": "MBBS",
+  "medical": "MBBS",
+  "طبيب": "MBBS",
+  "طب": "MBBS",
+
+  "nurse": "Bachelor Nursing",
+  "nursing": "Bachelor Nursing",
+  "تمريض": "Bachelor Nursing",
+
+  "pharmacy": "Bachelor Pharmacy",
+  "pharmacist": "Bachelor Pharmacy",
+  "صيدلة": "Bachelor Pharmacy",
+
+  "psychology": "Bachelor Psychology",
+  "psychologist": "Bachelor Psychology",
+  "علم نفس": "Bachelor Psychology",
+
+  // ====== ENGINEERING ======
+  "engineering": "Bachelor Mechanical Engineering",
+  "مهندس": "Bachelor Mechanical Engineering",
+
+  "mechanical engineer": "Bachelor Mechanical Engineering",
+  "هندسة ميكانيكا": "Bachelor Mechanical Engineering",
+
+  "civil engineering": "Bachelor Civil Engineering",
+  "هندسة مدنية": "Bachelor Civil Engineering",
+
+  "electrical engineering": "Bachelor Electrical Engineering",
+  "هندسة كهرباء": "Bachelor Electrical Engineering",
+
+  "chemical engineering": "Bachelor Chemical Engineering",
+  "هندسة كيميائية": "Bachelor Chemical Engineering",
+
+  "software engineer": "Bachelor CS Software Eng",
+  "software engineering": "Bachelor CS Software Eng",
+  "هندسة برمجيات": "Bachelor CS Software Eng",
+
+  "cyber security": "Bachelor CS Network Security",
+  "cyber": "Bachelor CS Network Security",
+  "أمن سيبراني": "Bachelor CS Network Security",
+
+  // ====== IT & COMPUTING ======
+  "it": "Diploma IT",
+  "information technology": "Diploma IT",
+  "تقنية المعلومات": "Diploma IT",
+
+  "computer science": "Bachelor CS Software Eng",
+  "علوم الحاسب": "Bachelor CS Software Eng",
+
+  "ai": "Bachelor AI",
+  "artificial intelligence": "Bachelor AI",
+  "ذكاء اصطناعي": "Bachelor AI",
+
+  "data science": "Bachelor CS Data Science",
+  "علوم البيانات": "Bachelor CS Data Science",
+
+  // ====== BUSINESS ======
+  "business": "BBA",
+  "management": "BBA",
+  "إدارة أعمال": "BBA",
+
+  "marketing": "Bachelor Marketing",
+  "تسويق": "Bachelor Marketing",
+
+  "finance": "Bachelor Finance",
+  "مالية": "Bachelor Finance",
+
+  "accounting": "Bachelor Accounting",
+  "محاسبة": "Bachelor Accounting",
+
+  "economics": "Bachelor Economics",
+  "اقتصاد": "Bachelor Economics",
+
+  // ====== ARCHITECTURE ======
+  "architecture": "Bachelor Architecture",
+  "architect": "Bachelor Architecture",
+  "هندسة معمارية": "Bachelor Architecture",
+  "معماري": "Bachelor Architecture",
+
+  "quantity surveying": "Bachelor Quantity Surveying",
+  "qs": "Bachelor Quantity Surveying",
+  "مسّاح كميات": "Bachelor Quantity Surveying"
+};
+
+/* ============================================
+   KEYWORD EXPANSION (GOOGLE-STYLE)
+============================================ */
+function expandKeywords(text) {
+  const expansionMap = {
+    "master": "postgraduate",
+    "ماجستير": "دراسات عليا",
+    "bachelor": "degree",
+    "degree": "bachelor",
+    "بكالوريوس": "درجة جامعية",
+    "engineering": "engineer",
+    "engineer": "engineering",
+    "هندسة": "مهندس",
+  };
+
+  let words = text.split(" ");
+  words.forEach(w => {
+    if (expansionMap[w]) {
+      words.push(expansionMap[w]);
+    }
+  });
+
+  return words.join(" ");
+}
+
+/* ============================================
+   ADVANCED SYNONYM RESOLUTION
+============================================ */
+function resolveSynonym(input) {
+  let txt = input.toLowerCase().trim();
+
+  // 1. Expand using keyword expansion
+  txt = expandKeywords(txt);
+
+  // 2. Direct exact match
+  if (synonyms[txt]) return synonyms[txt];
+
+  // 3. Partial fuzzy match
+  for (let key in synonyms) {
+    if (txt.includes(key)) return synonyms[key];
+  }
+
+  // 4. Arabic normalized search
+  let arabicNorm = txt.replace(/[أإآ]/g, "ا");
+  for (let key in synonyms) {
+    let keyNorm = key.replace(/[أإآ]/g, "ا");
+    if (arabicNorm.includes(keyNorm)) return synonyms[key];
+  }
+
+  // 5. No match → return original text
+  return input;
+}
+
+/* ============================================
+   PROGRAMME LABELS (EN + AR)
+============================================ */
+const PROGRAMME_LABELS = {
+  "Foundation in Science": { en: "Foundation in Science", ar: "سنة تأسيسية في العلوم" },
+  "Foundation in Engineering": { en: "Foundation in Engineering", ar: "سنة تأسيسية في الهندسة" },
+  "Foundation in Business": { en: "Foundation in Business", ar: "سنة تأسيسية في الأعمال" },
+  "Foundation in IT": { en: "Foundation in IT", ar: "سنة تأسيسية في تقنية المعلومات" },
+  "Foundation in Arts & Social Sc.": { en: "Foundation in Arts & Social Sciences", ar: "سنة تأسيسية في الآداب والعلوم الاجتماعية" },
+  "Foundation in Computing": { en: "Foundation in Computing", ar: "سنة تأسيسية في الحوسبة" },
+  "Foundation in Health Sciences": { en: "Foundation in Health Sciences", ar: "سنة تأسيسية في العلوم الصحية" },
+  "Foundation in Design": { en: "Foundation in Design", ar: "سنة تأسيسية في التصميم" },
+
+  "A-Level Science": { en: "A-Level Science", ar: "المستوى المتقدم (علوم)" },
+  "A-Level Arts": { en: "A-Level Arts", ar: "المستوى المتقدم (آداب)" },
+  "AUSMAT": { en: "AUSMAT", ar: "المنهج الأسترالي (AUSMAT)" },
+  "IB Diploma": { en: "IB Diploma", ar: "دبلوم البكالوريا الدولية" },
+
+  "Diploma Business Admin": { en: "Diploma in Business Administration", ar: "دبلوم إدارة الأعمال" },
+  "Diploma Accounting": { en: "Diploma in Accounting", ar: "دبلوم في المحاسبة" },
+  "Diploma Finance": { en: "Diploma in Finance", ar: "دبلوم في المالية" },
+  "Diploma Marketing": { en: "Diploma in Marketing", ar: "دبلوم في التسويق" },
+  "Diploma HRM": { en: "Diploma in Human Resource Management", ar: "دبلوم في إدارة الموارد البشرية" },
+  "Diploma IT": { en: "Diploma in Information Technology", ar: "دبلوم تقنية المعلومات" },
+  "Diploma Computer Science": { en: "Diploma in Computer Science", ar: "دبلوم علوم الحاسب" },
+  "Diploma Software Engineering": { en: "Diploma in Software Engineering", ar: "دبلوم هندسة البرمجيات" },
+  "Diploma Networking Security": { en: "Diploma in Network Security", ar: "دبلوم أمن الشبكات" },
+  "Diploma Mechanical Engineering": { en: "Diploma in Mechanical Engineering", ar: "دبلوم الهندسة الميكانيكية" },
+  "Diploma Electrical Engineering": { en: "Diploma in Electrical Engineering", ar: "دبلوم الهندسة الكهربائية" },
+  "Diploma Civil Engineering": { en: "Diploma in Civil Engineering", ar: "دبلوم الهندسة المدنية" },
+  "Diploma Mechatronics": { en: "Diploma in Mechatronics", ar: "دبلوم الميكاترونكس" },
+  "Diploma Nursing": { en: "Diploma in Nursing", ar: "دبلوم التمريض" },
+  "Diploma Pharmacy": { en: "Diploma in Pharmacy", ar: "دبلوم الصيدلة" },
+  "Diploma Medical Lab Tech": { en: "Diploma in Medical Lab Technology", ar: "دبلوم المختبرات الطبية" },
+  "Diploma Hotel Management": { en: "Diploma in Hotel Management", ar: "دبلوم إدارة الفنادق" },
+  "Diploma Culinary Arts": { en: "Diploma in Culinary Arts", ar: "دبلوم الطهي" },
+  "Diploma Tourism": { en: "Diploma in Tourism", ar: "دبلوم السياحة" },
+  "Diploma Early Childhood": { en: "Diploma in Early Childhood Education", ar: "دبلوم تعليم الطفولة المبكرة" },
+  "Diploma Mass Communication": { en: "Diploma in Mass Communication", ar: "دبلوم الإعلام" },
+  "Diploma Graphic Design": { en: "Diploma in Graphic Design", ar: "دبلوم التصميم الجرافيكي" },
+  "BBA": { en: "Bachelor of Business Administration (BBA)", ar: "بكالوريوس إدارة الأعمال" },
+  "Bachelor Accounting": { en: "Bachelor of Accounting", ar: "بكالوريوس المحاسبة" },
+  "Bachelor Finance": { en: "Bachelor of Finance", ar: "بكالوريوس المالية" },
+  "Bachelor Marketing": { en: "Bachelor of Marketing", ar: "بكالوريوس التسويق" },
+  "Bachelor HR": { en: "Bachelor in Human Resources", ar: "بكالوريوس الموارد البشرية" },
+  "Bachelor Economics": { en: "Bachelor of Economics", ar: "بكالوريوس الاقتصاد" },
+
+  "Bachelor Mechanical Engineering": { en: "Bachelor of Mechanical Engineering", ar: "بكالوريوس الهندسة الميكانيكية" },
+  "Bachelor Civil Engineering": { en: "Bachelor of Civil Engineering", ar: "بكالوريوس الهندسة المدنية" },
+  "Bachelor Chemical Engineering": { en: "Bachelor of Chemical Engineering", ar: "بكالوريوس الهندسة الكيميائية" },
+  "Bachelor Petroleum Engineering": { en: "Bachelor of Petroleum Engineering", ar: "بكالوريوس هندسة البترول" },
+  "Bachelor Electrical Engineering": { en: "Bachelor of Electrical Engineering", ar: "بكالوريوس الهندسة الكهربائية" },
+  "Bachelor Electronic Engineering": { en: "Bachelor of Electronic Engineering", ar: "بكالوريوس الهندسة الإلكترونية" },
+  "Bachelor Biomedical Engineering": { en: "Bachelor of Biomedical Engineering", ar: "بكالوريوس الهندسة الطبية" },
+
+  "Bachelor Naval/Offshore Eng": { en: "Bachelor of Naval / Offshore Engineering", ar: "بكالوريوس الهندسة البحرية / المنصات" },
+
+  "Bachelor CS Software Eng": { en: "Bachelor of Computer Science (Software Engineering)", ar: "بكالوريوس علوم الحاسب (هندسة البرمجيات)" },
+  "Bachelor CS Network Security": { en: "Bachelor of Computer Science (Network Security)", ar: "بكالوريوس علوم الحاسب (أمن الشبكات)" },
+  "Bachelor CS Multimedia": { en: "Bachelor of Computer Science (Multimedia)", ar: "بكالوريوس علوم الحاسب (الوسائط المتعددة)" },
+  "Bachelor CS Data Science": { en: "Bachelor of Computer Science (Data Science)", ar: "بكالوريوس علوم الحاسب (علوم البيانات)" },
+  "Bachelor AI": { en: "Bachelor of Artificial Intelligence", ar: "بكالوريوس الذكاء الاصطناعي" },
+
+  "Bachelor Architecture": { en: "Bachelor of Architecture", ar: "بكالوريوس العمارة" },
+  "Bachelor Quantity Surveying": { en: "Bachelor of Quantity Surveying", ar: "بكالوريوس هندسة الكميات" },
+  "Bachelor Construction": { en: "Bachelor of Construction Management", ar: "بكالوريوس إدارة التشييد" },
+  "Bachelor Urban Planning": { en: "Bachelor of Urban Planning", ar: "بكالوريوس التخطيط العمراني" },
+  "Bachelor Landscape Architecture": { en: "Bachelor of Landscape Architecture", ar: "بكالوريوس عمارة البيئة" },
+  "Bachelor Real Estate": { en: "Bachelor of Real Estate", ar: "بكالوريوس العقار" },
+
+  "Bachelor Physics": { en: "Bachelor of Physics", ar: "بكالوريوس الفيزياء" },
+  "Bachelor Chemistry": { en: "Bachelor of Chemistry", ar: "بكالوريوس الكيمياء" },
+  "Bachelor Biology": { en: "Bachelor of Biology", ar: "بكالوريوس الأحياء" },
+  "Bachelor Industrial Chemistry": { en: "Bachelor of Industrial Chemistry", ar: "بكالوريوس الكيمياء الصناعية" },
+  "Bachelor Industrial Maths": { en: "Bachelor of Industrial Mathematics", ar: "بكالوريوس الرياضيات الصناعية" },
+  "Bachelor Statistics": { en: "Bachelor of Statistics", ar: "بكالوريوس الإحصاء" },
+  "Bachelor Biotechnology": { en: "Bachelor of Biotechnology", ar: "بكالوريوس التكنولوجيا الحيوية" },
+
+  "MBBS": { en: "Bachelor of Medicine & Surgery (MBBS)", ar: "بكالوريوس الطب والجراحة" },
+  "Bachelor Pharmacy": { en: "Bachelor of Pharmacy", ar: "بكالوريوس الصيدلة" },
+  "Bachelor Nursing": { en: "Bachelor of Nursing", ar: "بكالوريوس التمريض" },
+  "Bachelor Medical Science": { en: "Bachelor of Medical Science", ar: "بكالوريوس العلوم الطبية" },
+
+  "Bachelor Psychology": { en: "Bachelor of Psychology", ar: "بكالوريوس علم النفس" },
+  "Bachelor HRD": { en: "Bachelor in Human Resource Development", ar: "بكالوريوس تطوير الموارد البشرية" },
+  "Bachelor Mass Communication": { en: "Bachelor of Mass Communication", ar: "بكالوريوس الإعلام" },
+  "Bachelor TESL": { en: "Bachelor of TESL", ar: "بكالوريوس تعليم اللغة الإنجليزية" },
+  "Bachelor Music": { en: "Bachelor of Music", ar: "بكالوريوس الموسيقى" },
+
+  "MBA": { en: "Master of Business Administration (MBA)", ar: "ماجستير إدارة الأعمال" },
+  "MBA Online": { en: "MBA (Online)", ar: "ماجستير إدارة الأعمال - عبر الإنترنت" },
+
+  "Master Management": { en: "Master in Management", ar: "ماجستير في الإدارة" },
+  "Master Architecture": { en: "Master of Architecture", ar: "ماجستير العمارة" },
+  "MSc Engineering": { en: "MSc in Engineering", ar: "ماجستير الهندسة" },
+  "MSc Medical Sciences": { en: "MSc in Medical Sciences", ar: "ماجستير العلوم الطبية" },
+  "Master Education": { en: "Master of Education", ar: "ماجستير التربية" },
+  "Master Education (Research)": { en: "Master of Education (Research)", ar: "ماجستير التربية (بحث)" },
+
+  "MPhil Business": { en: "MPhil in Business", ar: "ماجستير الفلسفة في الأعمال" },
+
+  "PhD Business": { en: "PhD in Business", ar: "دكتوراه في الأعمال" },
+  "PhD Engineering": { en: "PhD in Engineering", ar: "دكتوراه في الهندسة" },
+  "PhD IT": { en: "PhD in Information Technology", ar: "دكتوراه في تقنية المعلومات" },
+  "PhD Education": { en: "PhD in Education", ar: "دكتوراه في التربية" },
+  "PhD Science": { en: "PhD in Science", ar: "دكتوراه في العلوم" },
+  "PhD Medical": { en: "PhD in Medical Sciences", ar: "دكتوراه في العلوم الطبية" },
+
+  "DBA": { en: "Doctor of Business Administration (DBA)", ar: "دكتوراه إدارة الأعمال" }
+};
+
+/* ============================================
+   FULL DATABASE
+============================================ */
+
+let rawData = [
+{
+  university: "Universiti Malaya (UM)",
+  shortName: "UM",
+  type: "Public",
+  currency: "MYR",
+  website: universityWebsites["UM"],
+  programmes: {
+    "Foundation in Science": { available: true, price: "35,000" },
+    "Foundation in Engineering": { available: true, price: "35,000" },
+    "Foundation in Business": { available: false, price: null },
+    "Foundation in IT": { available: false, price: null },
+    "Foundation in Arts & Social Sc.": { available: true, price: "35,000" },
+    "Foundation in Computing": { available: false, price: null },
+    "Foundation in Health Sciences": { available: true, price: "35,000" },
+    "Foundation in Design": { available: false, price: null },
+
+    "A-Level Science": { available: false, price: null },
+    "A-Level Arts": { available: false, price: null },
+    "AUSMAT": { available: false, price: null },
+    "IB Diploma": { available: false, price: null },
+
+    "Diploma Business Admin": { available: true, price: "33,240" },
+    "Diploma Accounting": { available: true, price: "33,240" },
+    "Diploma Finance": { available: false, price: null },
+    "Diploma Marketing": { available: false, price: null },
+    "Diploma HRM": { available: false, price: null },
+    "Diploma IT": { available: true, price: "29,780" },
+    "Diploma Computer Science": { available: false, price: null },
+    "Diploma Software Engineering": { available: false, price: null },
+    "Diploma Networking Security": { available: false, price: null },
+    "Diploma Mechanical Engineering": { available: false, price: null },
+    "Diploma Electrical Engineering": { available: false, price: null },
+    "Diploma Civil Engineering": { available: false, price: null },
+    "Diploma Mechatronics": { available: false, price: null },
+    "Diploma Nursing": { available: false, price: null },
+    "Diploma Pharmacy": { available: false, price: null },
+    "Diploma Medical Lab Tech": { available: false, price: null },
+    "Diploma Hotel Management": { available: false, price: null },
+    "Diploma Culinary Arts": { available: false, price: null },
+    "Diploma Tourism": { available: false, price: null },
+    "Diploma Early Childhood": { available: false, price: null },
+    "Diploma Mass Communication": { available: false, price: null },
+    "Diploma Graphic Design": { available: false, price: null },
+
+    "BBA": { available: true, price: "77,100" },
+    "Bachelor Accounting": { available: true, price: "99,100" },
+    "Bachelor Finance": { available: true, price: "84,100" },
+    "Bachelor Marketing": { available: false, price: null },
+    "Bachelor HR": { available: false, price: null },
+    "Bachelor Economics": { available: true, price: "77,100" },
+    "Bachelor Mechanical Engineering": { available: true, price: "132,100" },
+    "Bachelor Civil Engineering": { available: true, price: "132,100" },
+    "Bachelor Chemical Engineering": { available: true, price: "132,100" },
+    "Bachelor Petroleum Engineering": { available: false, price: null },
+    "Bachelor Electrical Engineering": { available: true, price: "132,100" },
+    "Bachelor Electronic Engineering": { available: true, price: "132,100" },
+    "Bachelor Biomedical Engineering": { available: true, price: "132,100" },
+
+    "Bachelor Naval/Offshore Eng": { available: false, price: null },
+
+    "Bachelor CS Software Eng": { available: true, price: "89,200" },
+    "Bachelor CS Network Security": { available: true, price: "89,200" },
+    "Bachelor CS Multimedia": { available: true, price: "89,200" },
+    "Bachelor CS Data Science": { available: false, price: null },
+    "Bachelor AI": { available: true, price: "89,200" },
+
+    "Bachelor Architecture": { available: true, price: "103,900" },
+    "Bachelor Quantity Surveying": { available: true, price: "92,900" },
+    "Bachelor Construction": { available: true, price: "85,000" },
+    "Bachelor Urban Planning": { available: true, price: "96,100" },
+    "Bachelor Landscape Architecture": { available: false, price: null },
+    "Bachelor Real Estate": { available: true, price: "90,100" },
+
+    "Bachelor Physics": { available: true, price: "70,600" },
+    "Bachelor Chemistry": { available: true, price: "78,500" },
+    "Bachelor Biology": { available: true, price: "70,600" },
+    "Bachelor Industrial Chemistry": { available: false, price: null },
+    "Bachelor Industrial Maths": { available: true, price: "78,400" },
+    "Bachelor Statistics": { available: true, price: "70,600" },
+    "Bachelor Biotechnology": { available: true, price: "70,600" },
+
+    "MBBS": { available: true, price: "673,200" },
+    "Bachelor Pharmacy": { available: true, price: "280,100" },
+    "Bachelor Nursing": { available: true, price: "149,200" },
+    "Bachelor Medical Science": { available: true, price: "149,200" },
+
+    "Bachelor Psychology": { available: true, price: "69,600" },
+    "Bachelor HRD": { available: true, price: "0" },
+    "Bachelor Mass Communication": { available: true, price: "68,100" },
+    "Bachelor TESL": { available: true, price: "75,100" },
+    "Bachelor Music": { available: true, price: "64,500" },
+
+    "MBA": { available: true, price: "79,100" },
+    "MBA Online": { available: false, price: null },
+
+    "Master Management": { available: true, price: "60,100" },
+    "Master Architecture": { available: true, price: "60,600" },
+    "MSc Engineering": { available: true, price: "43,200" },
+    "MSc Medical Sciences": { available: true, price: "46,700" },
+
+    "Master Education": { available: true, price: "33,000" },
+    "Master Education (Research)": { available: true, price: "33,000" },
+
+    "MPhil Business": { available: false, price: null },
+
+    "PhD Business": { available: true, price: "92,200" },
+    "PhD Engineering": { available: true, price: "80,900" },
+    "PhD IT": { available: true, price: "86,600" },
+    "PhD Education": { available: true, price: "58,200" },
+    "PhD Science": { available: true, price: "80,900" },
+    "PhD Medical": { available: true, price: "93,300" },
+
+    "DBA": { available: true, price: "88,100" }
+  }
+},
+
+{
+  university: "Universiti Sains Malaysia (USM)",
+  shortName: "USM",
+  type: "Public",
+  currency: "USD",
+  website: universityWebsites["USM"],
+  programmes: {
+
+    "Foundation in Science": { available: true, price: "X" },
+    "Foundation in Engineering": { available: true, price: "X" },
+    "Foundation in Business": { available: false, price: null },
+    "Foundation in IT": { available: false, price: null },
+    "Foundation in Arts & Social Sc.": { available: false, price: null },
+    "Foundation in Computing": { available: false, price: null },
+    "Foundation in Health Sciences": { available: true, price: "X" },
+    "Foundation in Design": { available: false, price: null },
+
+    "A-Level Science": { available: false, price: null },
+    "A-Level Arts": { available: false, price: null },
+    "AUSMAT": { available: false, price: null },
+    "IB Diploma": { available: false, price: null },
+
+    "Diploma Business Admin": { available: false, price: null },
+    "Diploma Accounting": { available: false, price: null },
+    "Diploma Finance": { available: false, price: null },
+    "Diploma Marketing": { available: false, price: null },
+    "Diploma HRM": { available: false, price: null },
+    "Diploma IT": { available: false, price: null },
+    "Diploma Computer Science": { available: false, price: null },
+    "Diploma Software Engineering": { available: false, price: null },
+    "Diploma Networking Security": { available: false, price: null },
+    "Diploma Mechanical Engineering": { available: false, price: null },
+    "Diploma Electrical Engineering": { available: false, price: null },
+    "Diploma Civil Engineering": { available: false, price: null },
+    "Diploma Mechatronics": { available: false, price: null },
+    "Diploma Nursing": { available: false, price: null },
+    "Diploma Pharmacy": { available: false, price: null },
+    "Diploma Medical Lab Tech": { available: false, price: null },
+    "Diploma Hotel Management": { available: false, price: null },
+    "Diploma Culinary Arts": { available: false, price: null },
+    "Diploma Tourism": { available: false, price: null },
+    "Diploma Early Childhood": { available: false, price: null },
+    "Diploma Mass Communication": { available: false, price: null },
+    "Diploma Graphic Design": { available: false, price: null },
+
+    "BBA": { available: true, price: "2285.71" },
+    "Bachelor Accounting": { available: true, price: "2250" },
+    "Bachelor Finance": { available: true, price: "X" },
+    "Bachelor Marketing": { available: true, price: "X" },
+    "Bachelor HR": { available: true, price: "X" },
+    "Bachelor Economics": { available: true, price: "1875" },
+
+    "Bachelor Mechanical Engineering": { available: true, price: "2250" },
+    "Bachelor Civil Engineering": { available: true, price: "2250" },
+    "Bachelor Chemical Engineering": { available: true, price: "2812.50" },
+    "Bachelor Petroleum Engineering": { available: false, price: null },
+    "Bachelor Electrical Engineering": { available: true, price: "2250" },
+    "Bachelor Electronic Engineering": { available: true, price: "2250" },
+    "Bachelor Biomedical Engineering": { available: true, price: "2125" },
+
+    "Bachelor Naval/Offshore Eng": { available: false, price: null },
+
+    "Bachelor CS Software Eng": { available: true, price: "1875" },
+    "Bachelor CS Network Security": { available: true, price: "1875" },
+    "Bachelor CS Multimedia": { available: true, price: "X" },
+    "Bachelor CS Data Science": { available: true, price: "8000 RM Total" },
+    "Bachelor AI": { available: true, price: "1875" },
+
+    "Bachelor Architecture": { available: true, price: "3125" },
+    "Bachelor Quantity Surveying": { available: true, price: "3125" },
+    "Bachelor Construction": { available: true, price: "2250" },
+    "Bachelor Urban Planning": { available: true, price: "2250" },
+    "Bachelor Landscape Architecture": { available: true, price: "9380 RM" },
+    "Bachelor Real Estate": { available: false, price: null },
+
+    "Bachelor Physics": { available: true, price: "1718.75" },
+    "Bachelor Chemistry": { available: true, price: "1718.75" },
+    "Bachelor Biology": { available: true, price: "1718.75" },
+    "Bachelor Industrial Chemistry": { available: true, price: "1718.75" },
+    "Bachelor Industrial Maths": { available: true, price: "X" },
+    "Bachelor Statistics": { available: true, price: "1718.75" },
+    "Bachelor Biotechnology": { available: true, price: "1875" },
+
+    "MBBS": { available: true, price: "13750" },
+    "Bachelor Pharmacy": { available: false, price: null },
+    "Bachelor Nursing": { available: false, price: null },
+    "Bachelor Medical Science": { available: true, price: "2125" },
+
+    "Bachelor Psychology": { available: true, price: "38500 RM Total" },
+    "Bachelor HRD": { available: false, price: null },
+    "Bachelor Mass Communication": { available: true, price: "2500" },
+    "Bachelor TESL": { available: true, price: "1718.75" },
+    "Bachelor Music": { available: true, price: "1562.50" },
+
+    "MBA": { available: true, price: "6352.50 Total" },
+    "MBA Online": { available: true, price: "10945 Total" },
+
+    "Master Management": { available: true, price: "7350 RM Total" },
+    "Master Architecture": { available: true, price: "5280 Total" },
+    "MSc Engineering": { available: true, price: "1388 per sem" },
+    "MSc Medical Sciences": { available: true, price: "1575 per sem" },
+
+    "Master Education": { available: true, price: "3900 Total" },
+    "Master Education (Research)": { available: true, price: "1150 per sem" },
+
+    "MPhil Business": { available: false, price: null },
+
+    "PhD Business": { available: true, price: "1275 per sem" },
+    "PhD Engineering": { available: true, price: "1388 per sem" },
+    "PhD IT": { available: true, price: "1550 per sem" },
+    "PhD Education": { available: true, price: "1150 per sem" },
+    "PhD Science": { available: true, price: "1250 per sem" },
+    "PhD Medical": { available: true, price: "1575 per sem" },
+
+    "DBA": { available: true, price: "15997.50 Total" }
+  }
+},
+
+{
+  university: "Universiti Kebangsaan Malaysia (UKM)",
+  shortName: "UKM",
+  type: "Public",
+  currency: "MYR",
+  website: universityWebsites["UKM"],
+  programmes: {
+
+    "Foundation in Science": { available: true, price: "28000" },
+    "Foundation in Engineering": { available: true, price: "28000" },
+    "Foundation in Business": { available: false, price: null },
+    "Foundation in IT": { available: false, price: null },
+    "Foundation in Arts & Social Sc.": { available: true, price: "28000" },
+    "Foundation in Computing": { available: false, price: null },
+    "Foundation in Health Sciences": { available: true, price: "28000" },
+    "Foundation in Design": { available: false, price: null },
+
+    "A-Level Science": { available: false, price: null },
+    "A-Level Arts": { available: false, price: null },
+    "AUSMAT": { available: false, price: null },
+    "IB Diploma": { available: false, price: null },
+
+    "Diploma Business Admin": { available: false, price: null },
+    "Diploma Accounting": { available: false, price: null },
+    "Diploma Finance": { available: false, price: null },
+    "Diploma Marketing": { available: false, price: null },
+    "Diploma HRM": { available: false, price: null },
+    "Diploma IT": { available: false, price: null },
+    "Diploma Computer Science": { available: false, price: null },
+    "Diploma Software Engineering": { available: false, price: null },
+    "Diploma Networking Security": { available: false, price: null },
+    "Diploma Mechanical Engineering": { available: false, price: null },
+    "Diploma Electrical Engineering": { available: false, price: null },
+    "Diploma Civil Engineering": { available: false, price: null },
+    "Diploma Mechatronics": { available: false, price: null },
+    "Diploma Nursing": { available: false, price: null },
+    "Diploma Pharmacy": { available: false, price: null },
+    "Diploma Medical Lab Tech": { available: false, price: null },
+    "Diploma Hotel Management": { available: false, price: null },
+    "Diploma Culinary Arts": { available: false, price: null },
+    "Diploma Tourism": { available: false, price: null },
+    "Diploma Early Childhood": { available: false, price: null },
+    "Diploma Mass Communication": { available: false, price: null },
+    "Diploma Graphic Design": { available: false, price: null },
+
+    "BBA": { available: true, price: "59920" },
+    "Bachelor Accounting": { available: true, price: "77020" },
+    "Bachelor Finance": { available: true, price: "59920" },
+    "Bachelor Marketing": { available: true, price: "59920" },
+    "Bachelor HR": { available: true, price: "59920" },
+    "Bachelor Economics": { available: true, price: "59920" },
+
+    "Bachelor Mechanical Engineering": { available: true, price: "90820" },
+    "Bachelor Civil Engineering": { available: true, price: "90820" },
+    "Bachelor Chemical Engineering": { available: true, price: "90820" },
+    "Bachelor Petroleum Engineering": { available: false, price: null },
+    "Bachelor Electrical Engineering": { available: true, price: "90820" },
+    "Bachelor Electronic Engineering": { available: true, price: "82420" },
+    "Bachelor Biomedical Engineering": { available: true, price: "74250" },
+
+    "Bachelor Naval/Offshore Eng": { available: false, price: null },
+
+    "Bachelor CS Software Eng": { available: true, price: "76120" },
+    "Bachelor CS Network Security": { available: true, price: "76120" },
+    "Bachelor CS Multimedia": { available: true, price: "76120" },
+    "Bachelor CS Data Science": { available: true, price: "76120" },
+    "Bachelor AI": { available: true, price: "76120" },
+
+    "Bachelor Architecture": { available: true, price: "90820" },
+    "Bachelor Quantity Surveying": { available: true, price: null },
+    "Bachelor Construction": { available: false, price: null },
+    "Bachelor Urban Planning": { available: true, price: null },
+    "Bachelor Landscape Architecture": { available: false, price: null },
+    "Bachelor Real Estate": { available: false, price: null },
+
+    "Bachelor Physics": { available: true, price: "80520" },
+    "Bachelor Chemistry": { available: true, price: "80520" },
+    "Bachelor Biology": { available: true, price: "80520" },
+    "Bachelor Industrial Chemistry": { available: true, price: "80520" },
+    "Bachelor Industrial Maths": { available: false, price: null },
+    "Bachelor Statistics": { available: true, price: "76120" },
+    "Bachelor Biotechnology": { available: true, price: "80520" },
+
+    "MBBS": { available: true, price: "438520" },
+    "Bachelor Pharmacy": { available: true, price: "144220" },
+    "Bachelor Nursing": { available: false, price: null },
+    "Bachelor Medical Science": { available: true, price: "74250" },
+
+    "Bachelor Psychology": { available: true, price: "76120" },
+    "Bachelor HRD": { available: false, price: null },
+    "Bachelor Mass Communication": { available: true, price: "59920" },
+    "Bachelor TESL": { available: true, price: "76120" },
+    "Bachelor Music": { available: false, price: null },
+
+    "MBA": { available: true, price: "59920" },
+    "MBA Online": { available: false, price: null },
+
+    "Master Management": { available: true, price: "18550" },
+    "Master Architecture": { available: true, price: "23030" },
+    "MSc Engineering": { available: true, price: "23030" },
+    "MSc Medical Sciences": { available: true, price: "30910" },
+
+    "Master Education": { available: true, price: "17750" },
+    "Master Education (Research)": { available: true, price: "17750" },
+
+    "MPhil Business": { available: true, price: "18550" },
+
+    "PhD Business": { available: true, price: "18550" },
+    "PhD Engineering": { available: true, price: "23030" },
+    "PhD IT": { available: true, price: "19750" },
+    "PhD Education": { available: true, price: "17750" },
+    "PhD Science": { available: true, price: "21150" },
+    "PhD Medical": { available: true, price: "30910" },
+
+    "DBA": { available: true, price: "61860" }
+  }
+},
+{
+  university: "Universiti Putra Malaysia (UPM)",
+  shortName: "UPM",
+  type: "Public",
+  currency: "MYR",
+  website: universityWebsites["UPM"],
+  programmes: {
+
+    "Foundation in Science": { available: true, price: "10000" },
+    "Foundation in Engineering": { available: false, price: null },
+    "Foundation in Business": { available: false, price: null },
+    "Foundation in IT": { available: false, price: null },
+    "Foundation in Arts & Social Sc.": { available: false, price: null },
+    "Foundation in Computing": { available: false, price: null },
+    "Foundation in Health Sciences": { available: false, price: null },
+    "Foundation in Design": { available: false, price: null },
+
+    "A-Level Science": { available: false, price: null },
+    "A-Level Arts": { available: false, price: null },
+    "AUSMAT": { available: false, price: null },
+    "IB Diploma": { available: false, price: null },
+
+    "Diploma Business Admin": { available: false, price: null },
+    "Diploma Accounting": { available: false, price: null },
+    "Diploma Finance": { available: false, price: null },
+    "Diploma Marketing": { available: false, price: null },
+    "Diploma HRM": { available: false, price: null },
+    "Diploma IT": { available: false, price: null },
+    "Diploma Computer Science": { available: false, price: null },
+    "Diploma Software Engineering": { available: false, price: null },
+    "Diploma Networking Security": { available: false, price: null },
+    "Diploma Mechanical Engineering": { available: false, price: null },
+    "Diploma Electrical Engineering": { available: false, price: null },
+    "Diploma Civil Engineering": { available: false, price: null },
+    "Diploma Mechatronics": { available: false, price: null },
+    "Diploma Nursing": { available: false, price: null },
+    "Diploma Pharmacy": { available: false, price: null },
+    "Diploma Medical Lab Tech": { available: false, price: null },
+    "Diploma Hotel Management": { available: false, price: null },
+    "Diploma Culinary Arts": { available: false, price: null },
+    "Diploma Tourism": { available: false, price: null },
+    "Diploma Early Childhood": { available: false, price: null },
+    "Diploma Mass Communication": { available: false, price: null },
+    "Diploma Graphic Design": { available: false, price: null },
+
+    "BBA": { available: true, price: "50000" },
+    "Bachelor Accounting": { available: true, price: "50000" },
+    "Bachelor Finance": { available: false, price: null },
+    "Bachelor Marketing": { available: false, price: null },
+    "Bachelor HR": { available: true, price: "65000" },
+    "Bachelor Economics": { available: true, price: "50000" },
+
+    "Bachelor Mechanical Engineering": { available: true, price: "70000" },
+    "Bachelor Civil Engineering": { available: true, price: "70000" },
+    "Bachelor Chemical Engineering": { available: true, price: "70000" },
+    "Bachelor Petroleum Engineering": { available: false, price: null },
+    "Bachelor Electrical Engineering": { available: true, price: "70000" },
+    "Bachelor Electronic Engineering": { available: true, price: "70000" },
+    "Bachelor Biomedical Engineering": { available: true, price: "65000" },
+
+    "Bachelor Naval/Offshore Eng": { available: false, price: null },
+
+    "Bachelor CS Software Eng": { available: true, price: "65000" },
+    "Bachelor CS Network Security": { available: true, price: "65000" },
+    "Bachelor CS Multimedia": { available: true, price: "65000" },
+    "Bachelor CS Data Science": { available: false, price: null },
+    "Bachelor AI": { available: false, price: null },
+
+    "Bachelor Architecture": { available: true, price: "56875" },
+    "Bachelor Quantity Surveying": { available: false, price: null },
+    "Bachelor Construction": { available: false, price: null },
+    "Bachelor Urban Planning": { available: false, price: null },
+    "Bachelor Landscape Architecture": { available: true, price: "65000" },
+    "Bachelor Real Estate": { available: false, price: null },
+
+    "Bachelor Physics": { available: true, price: "60000" },
+    "Bachelor Chemistry": { available: true, price: "60000" },
+    "Bachelor Biology": { available: true, price: "60000" },
+    "Bachelor Industrial Chemistry": { available: true, price: "65000" },
+    "Bachelor Industrial Maths": { available: false, price: null },
+    "Bachelor Statistics": { available: true, price: "60000" },
+    "Bachelor Biotechnology": { available: true, price: "65000" },
+
+    "MBBS": { available: false, price: null },
+    "Bachelor Pharmacy": { available: false, price: null },
+    "Bachelor Nursing": { available: true, price: "80000" },
+    "Bachelor Medical Science": { available: true, price: "65000" },
+
+    "Bachelor Psychology": { available: false, price: null },
+    "Bachelor HRD": { available: true, price: "65000" },
+    "Bachelor Mass Communication": { available: true, price: "35000" },
+    "Bachelor TESL": { available: true, price: "50000" },
+    "Bachelor Music": { available: true, price: "60000" },
+
+    "MBA": { available: true, price: "37900" },
+    "MBA Online": { available: false, price: null },
+
+    "Master Management": { available: true, price: "25150" },
+    "Master Architecture": { available: true, price: "31950" },
+    "MSc Engineering": { available: true, price: "19850" },
+    "MSc Medical Sciences": { available: true, price: "19900" },
+
+    "Master Education": { available: true, price: "29150" },
+    "Master Education (Research)": { available: true, price: "17900" },
+
+    "MPhil Business": { available: true, price: "17900" },
+
+    "PhD Business": { available: true, price: "34500" },
+    "PhD Engineering": { available: true, price: "44200" },
+    "PhD IT": { available: true, price: "44200" },
+    "PhD Education": { available: true, price: "34500" },
+    "PhD Science": { available: true, price: "44200" },
+    "PhD Medical": { available: true, price: "48650" },
+
+    "DBA": { available: true, price: "34500" }
+  }
+},
+{
+  university: "Universiti Teknologi Malaysia (UTM)",
+  shortName: "UTM",
+  type: "Public",
+  currency: "MYR",
+  website: universityWebsites["UTM"],
+  programmes: {
+
+    "Foundation in Science": { available: true, price: "28000" },
+    "Foundation in Engineering": { available: true, price: "28000" },
+    "Foundation in Business": { available: false, price: null },
+    "Foundation in IT": { available: false, price: null },
+    "Foundation in Arts & Social Sc.": { available: true, price: "28000" },
+    "Foundation in Computing": { available: false, price: null },
+    "Foundation in Health Sciences": { available: false, price: null },
+    "Foundation in Design": { available: false, price: null },
+
+    "A-Level Science": { available: false, price: null },
+    "A-Level Arts": { available: false, price: null },
+    "AUSMAT": { available: false, price: null },
+    "IB Diploma": { available: false, price: null },
+
+    "Diploma Business Admin": { available: false, price: null },
+    "Diploma Accounting": { available: true, price: "63000" },
+    "Diploma Finance": { available: false, price: null },
+    "Diploma Marketing": { available: false, price: null },
+    "Diploma HRM": { available: false, price: null },
+    "Diploma IT": { available: true, price: "38800" },
+    "Diploma Computer Science": { available: true, price: "38800" },
+    "Diploma Software Engineering": { available: false, price: null },
+    "Diploma Networking Security": { available: false, price: null },
+    "Diploma Mechanical Engineering": { available: true, price: "44500" },
+    "Diploma Electrical Engineering": { available: true, price: "44500" },
+    "Diploma Civil Engineering": { available: true, price: "44500" },
+    "Diploma Mechatronics": { available: true, price: "44500" },
+    "Diploma Nursing": { available: false, price: null },
+    "Diploma Pharmacy": { available: false, price: null },
+    "Diploma Medical Lab Tech": { available: false, price: null },
+    "Diploma Hotel Management": { available: false, price: null },
+    "Diploma Culinary Arts": { available: false, price: null },
+    "Diploma Tourism": { available: false, price: null },
+    "Diploma Early Childhood": { available: false, price: null },
+    "Diploma Mass Communication": { available: false, price: null },
+    "Diploma Graphic Design": { available: false, price: null },
+
+    "BBA": { available: true, price: "63000" },
+    "Bachelor Accounting": { available: true, price: "63000" },
+    "Bachelor Finance": { available: false, price: null },
+    "Bachelor Marketing": { available: true, price: "63000" },
+    "Bachelor HR": { available: true, price: "63000" },
+    "Bachelor Economics": { available: false, price: null },
+
+    "Bachelor Mechanical Engineering": { available: true, price: "75000" },
+    "Bachelor Civil Engineering": { available: true, price: "75000" },
+    "Bachelor Chemical Engineering": { available: true, price: "75000" },
+    "Bachelor Petroleum Engineering": { available: false, price: null },
+    "Bachelor Electrical Engineering": { available: true, price: "75000" },
+    "Bachelor Electronic Engineering": { available: true, price: "75000" },
+    "Bachelor Biomedical Engineering": { available: true, price: "75000" },
+
+    "Bachelor Naval/Offshore Eng": { available: false, price: null },
+
+    "Bachelor CS Software Eng": { available: true, price: "71000" },
+    "Bachelor CS Network Security": { available: true, price: "71000" },
+    "Bachelor CS Multimedia": { available: true, price: "71000" },
+    "Bachelor CS Data Science": { available: true, price: "71000" },
+    "Bachelor AI": { available: true, price: "71000" },
+
+    "Bachelor Architecture": { available: true, price: "51620" },
+    "Bachelor Quantity Surveying": { available: true, price: "63000" },
+    "Bachelor Construction": { available: true, price: "63000" },
+    "Bachelor Urban Planning": { available: true, price: "63000" },
+    "Bachelor Landscape Architecture": { available: true, price: "63000" },
+    "Bachelor Real Estate": { available: true, price: "59000" },
+
+    "Bachelor Physics": { available: true, price: "63000" },
+    "Bachelor Chemistry": { available: true, price: "63000" },
+    "Bachelor Biology": { available: true, price: "63000" },
+    "Bachelor Industrial Chemistry": { available: true, price: "63000" },
+    "Bachelor Industrial Maths": { available: true, price: "63000" },
+    "Bachelor Statistics": { available: false, price: null },
+    "Bachelor Biotechnology": { available: true, price: "63000" },
+
+    "MBBS": { available: false, price: null },
+    "Bachelor Pharmacy": { available: false, price: null },
+    "Bachelor Nursing": { available: false, price: null },
+    "Bachelor Medical Science": { available: false, price: null },
+
+    "Bachelor Psychology": { available: true, price: "63000" },
+    "Bachelor HRD": { available: true, price: "63000" },
+    "Bachelor Mass Communication": { available: true, price: "63000" },
+    "Bachelor TESL": { available: true, price: "55000" },
+    "Bachelor Music": { available: false, price: null },
+
+    "MBA": { available: true, price: "32154" },
+    "MBA Online": { available: false, price: null },
+
+    "Master Management": { available: true, price: "26500" },
+    "Master Architecture": { available: true, price: "29500" },
+    "MSc Engineering": { available: true, price: "31000" },
+    "MSc Medical Sciences": { available: false, price: null },
+
+    "Master Education": { available: true, price: "26500" },
+    "Master Education (Research)": { available: true, price: "25400" },
+
+    "MPhil Business": { available: true, price: "25400" },
+
+    "PhD Business": { available: true, price: "48600" },
+    "PhD Engineering": { available: true, price: "51600" },
+    "PhD IT": { available: true, price: "48600" },
+    "PhD Education": { available: true, price: "48600" },
+    "PhD Science": { available: true, price: "48600" },
+    "PhD Medical": { available: false, price: null },
+
+    "DBA": { available: true, price: "60154" }
+  }
+},
+{
+  university: "Universiti Teknologi MARA (UiTM)",
+  shortName: "UiTM",
+  type: "Public",
+  currency: "MYR",
+  website: universityWebsites["UiTM"],
+  programmes: {
+
+    "Foundation in Science": { available: false, price: null },
+    "Foundation in Engineering": { available: false, price: null },
+    "Foundation in Business": { available: false, price: null },
+    "Foundation in IT": { available: false, price: null },
+    "Foundation in Arts & Social Sc.": { available: false, price: null },
+    "Foundation in Computing": { available: false, price: null },
+    "Foundation in Health Sciences": { available: false, price: null },
+    "Foundation in Design": { available: false, price: null },
+
+    "A-Level Science": { available: false, price: null },
+    "A-Level Arts": { available: false, price: null },
+    "AUSMAT": { available: false, price: null },
+    "IB Diploma": { available: false, price: null },
+
+    "Diploma Business Admin": { available: false, price: null },
+    "Diploma Accounting": { available: false, price: null },
+    "Diploma Finance": { available: false, price: null },
+    "Diploma Marketing": { available: false, price: null },
+    "Diploma HRM": { available: false, price: null },
+    "Diploma IT": { available: false, price: null },
+    "Diploma Computer Science": { available: false, price: null },
+    "Diploma Software Engineering": { available: false, price: null },
+    "Diploma Networking Security": { available: false, price: null },
+    "Diploma Mechanical Engineering": { available: false, price: null },
+    "Diploma Electrical Engineering": { available: false, price: null },
+    "Diploma Civil Engineering": { available: false, price: null },
+    "Diploma Mechatronics": { available: false, price: null },
+    "Diploma Nursing": { available: false, price: null },
+    "Diploma Pharmacy": { available: false, price: null },
+    "Diploma Medical Lab Tech": { available: false, price: null },
+    "Diploma Hotel Management": { available: false, price: null },
+    "Diploma Culinary Arts": { available: false, price: null },
+    "Diploma Tourism": { available: false, price: null },
+    "Diploma Early Childhood": { available: false, price: null },
+    "Diploma Mass Communication": { available: false, price: null },
+    "Diploma Graphic Design": { available: false, price: null },
+
+    "BBA": { available: false, price: null },
+    "Bachelor Accounting": { available: false, price: null },
+    "Bachelor Finance": { available: false, price: null },
+    "Bachelor Marketing": { available: false, price: null },
+    "Bachelor HR": { available: false, price: null },
+    "Bachelor Economics": { available: false, price: null },
+
+    "Bachelor Mechanical Engineering": { available: false, price: null },
+    "Bachelor Civil Engineering": { available: false, price: null },
+    "Bachelor Chemical Engineering": { available: false, price: null },
+    "Bachelor Petroleum Engineering": { available: false, price: null },
+    "Bachelor Electrical Engineering": { available: false, price: null },
+    "Bachelor Electronic Engineering": { available: false, price: null },
+    "Bachelor Biomedical Engineering": { available: false, price: null },
+
+    "Bachelor Naval/Offshore Eng": { available: false, price: null },
+
+    "Bachelor CS Software Eng": { available: false, price: null },
+    "Bachelor CS Network Security": { available: false, price: null },
+    "Bachelor CS Multimedia": { available: false, price: null },
+    "Bachelor CS Data Science": { available: false, price: null },
+    "Bachelor AI": { available: false, price: null },
+
+    "Bachelor Architecture": { available: false, price: null },
+    "Bachelor Quantity Surveying": { available: false, price: null },
+    "Bachelor Construction": { available: false, price: null },
+    "Bachelor Urban Planning": { available: false, price: null },
+    "Bachelor Landscape Architecture": { available: false, price: null },
+    "Bachelor Real Estate": { available: false, price: null },
+
+    "Bachelor Physics": { available: false, price: null },
+    "Bachelor Chemistry": { available: false, price: null },
+    "Bachelor Biology": { available: false, price: null },
+    "Bachelor Industrial Chemistry": { available: false, price: null },
+    "Bachelor Industrial Maths": { available: false, price: null },
+    "Bachelor Statistics": { available: false, price: null },
+    "Bachelor Biotechnology": { available: false, price: null },
+
+    "MBBS": { available: false, price: null },
+    "Bachelor Pharmacy": { available: false, price: null },
+    "Bachelor Nursing": { available: false, price: null },
+    "Bachelor Medical Science": { available: false, price: null },
+
+    "Bachelor Psychology": { available: false, price: null },
+    "Bachelor HRD": { available: false, price: null },
+    "Bachelor Mass Communication": { available: false, price: null },
+    "Bachelor TESL": { available: false, price: null },
+    "Bachelor Music": { available: false, price: null },
+
+    "MBA": { available: true, price: "39630" },
+    "MBA Online": { available: false, price: null },
+
+    "Master Management": { available: false, price: null },
+    "Master Architecture": { available: true, price: "24000" },
+    "MSc Engineering": { available: true, price: "36000" },
+    "MSc Medical Sciences": { available: false, price: null },
+
+    "Master Education": { available: false, price: null },
+    "Master Education (Research)": { available: false, price: null },
+
+    "MPhil Business": { available: false, price: null },
+
+    "PhD Business": { available: false, price: null },
+    "PhD Engineering": { available: true, price: "50280" },
+    "PhD IT": { available: true, price: "39540" },
+    "PhD Education": { available: false, price: null },
+    "PhD Science": { available: true, price: "39540" },
+    "PhD Medical": { available: true, price: "54540" },
+
+    "DBA": { available: true, price: "54060" }
+  }
+},
+{
+  university: "Universiti Utara Malaysia (UUM)",
+  shortName: "UUM",
+  type: "Public",
+  currency: "MYR",
+  website: universityWebsites["UUM"],
+  programmes: {
+    "Foundation in Science": { available: false, price: null },
+    "Foundation in Engineering": { available: false, price: null },
+    "Foundation in Business": { available: true, price: "9900" },
+    "Foundation in IT": { available: false, price: null },
+    "Foundation in Arts & Social Sc.": { available: false, price: null },
+    "Foundation in Computing": { available: true, price: "9900" },
+    "Foundation in Health Sciences": { available: false, price: null },
+    "Foundation in Design": { available: false, price: null },
+
+    "A-Level Science": { available: false, price: null },
+    "A-Level Arts": { available: false, price: null },
+    "AUSMAT": { available: false, price: null },
+    "IB Diploma": { available: false, price: null },
+
+    "Diploma Business Admin": { available: true, price: "20000" },
+    "Diploma Accounting": { available: true, price: "20000" },
+    "Diploma Finance": { available: true, price: "20000" },
+    "Diploma Marketing": { available: true, price: "20000" },
+    "Diploma HRM": { available: true, price: "20000" },
+    "Diploma IT": { available: true, price: "20000" },
+    "Diploma Computer Science": { available: false, price: null },
+    "Diploma Software Engineering": { available: false, price: null },
+    "Diploma Networking Security": { available: false, price: null },
+    "Diploma Mechanical Engineering": { available: false, price: null },
+    "Diploma Electrical Engineering": { available: false, price: null },
+    "Diploma Civil Engineering": { available: false, price: null },
+    "Diploma Mechatronics": { available: false, price: null },
+    "Diploma Nursing": { available: false, price: null },
+    "Diploma Pharmacy": { available: false, price: null },
+    "Diploma Medical Lab Tech": { available: false, price: null },
+    "Diploma Hotel Management": { available: false, price: null },
+    "Diploma Culinary Arts": { available: false, price: null },
+    "Diploma Tourism": { available: false, price: null },
+    "Diploma Early Childhood": { available: false, price: null },
+    "Diploma Mass Communication": { available: false, price: null },
+    "Diploma Graphic Design": { available: false, price: null },
+
+    "BBA": { available: true, price: "44000" },
+    "Bachelor Accounting": { available: true, price: "49000" },
+    "Bachelor Finance": { available: true, price: "44000" },
+    "Bachelor Marketing": { available: true, price: "44000" },
+    "Bachelor HR": { available: true, price: "44000" },
+    "Bachelor Economics": { available: true, price: "44000" },
+
+    "Bachelor Mechanical Engineering": { available: false, price: null },
+    "Bachelor Civil Engineering": { available: false, price: null },
+    "Bachelor Chemical Engineering": { available: false, price: null },
+    "Bachelor Petroleum Engineering": { available: false, price: null },
+    "Bachelor Electrical Engineering": { available: false, price: null },
+    "Bachelor Electronic Engineering": { available: false, price: null },
+    "Bachelor Biomedical Engineering": { available: false, price: null },
+    "Bachelor Naval/Offshore Eng": { available: false, price: null },
+
+    "Bachelor CS Software Eng": { available: true, price: "44000" },
+    "Bachelor CS Network Security": { available: true, price: "44000" },
+    "Bachelor CS Multimedia": { available: true, price: "44000" },
+    "Bachelor CS Data Science": { available: true, price: "44000" },
+    "Bachelor AI": { available: true, price: "44000" },
+
+    "Bachelor Architecture": { available: false, price: null },
+    "Bachelor Quantity Surveying": { available: false, price: null },
+    "Bachelor Construction": { available: false, price: null },
+    "Bachelor Urban Planning": { available: false, price: null },
+    "Bachelor Landscape Architecture": { available: false, price: null },
+    "Bachelor Real Estate": { available: false, price: null },
+
+    "Bachelor Physics": { available: false, price: null },
+    "Bachelor Chemistry": { available: false, price: null },
+    "Bachelor Biology": { available: false, price: null },
+    "Bachelor Industrial Chemistry": { available: false, price: null },
+    "Bachelor Industrial Maths": { available: false, price: null },
+    "Bachelor Statistics": { available: false, price: null },
+    "Bachelor Biotechnology": { available: false, price: null },
+
+    "MBBS": { available: false, price: null },
+    "Bachelor Pharmacy": { available: false, price: null },
+    "Bachelor Nursing": { available: false, price: null },
+    "Bachelor Medical Science": { available: false, price: null },
+
+    "Bachelor Psychology": { available: true, price: "44000" },
+    "Bachelor HRD": { available: false, price: null },
+    "Bachelor Mass Communication": { available: true, price: "44000" },
+    "Bachelor TESL": { available: true, price: "44000" },
+    "Bachelor Music": { available: false, price: null },
+
+    "MBA": { available: true, price: "25000" },
+    "MBA Online": { available: true, price: "18000" },
+
+    "Master Management": { available: true, price: "20000" },
+    "Master Architecture": { available: false, price: null },
+    "MSc Engineering": { available: false, price: null },
+    "MSc Medical Sciences": { available: false, price: null },
+
+    "Master Education": { available: false, price: null },
+    "Master Education (Research)": { available: false, price: null },
+
+    "MPhil Business": { available: true, price: "20000" },
+
+    "PhD Business": { available: true, price: "28000" },
+    "PhD Engineering": { available: false, price: null },
+    "PhD IT": { available: true, price: "28000" },
+    "PhD Education": { available: false, price: null },
+    "PhD Science": { available: false, price: null },
+    "PhD Medical": { available: false, price: null },
+
+    "DBA": { available: true, price: "32000" }
+  }
+},
+{
+  university: "International Islamic University Malaysia (IIUM)",
+  shortName: "IIUM",
+  type: "Public",
+  currency: "MYR",
+  website: universityWebsites["IIUM"],
+  programmes: {
+    "Foundation in Science": { available: true, price: "9900" },
+    "Foundation in Engineering": { available: true, price: "9900" },
+    "Foundation in Business": { available: true, price: "9900" },
+    "Foundation in IT": { available: true, price: "9900" },
+    "Foundation in Arts & Social Sc.": { available: true, price: "9900" },
+    "Foundation in Computing": { available: true, price: "9900" },
+    "Foundation in Health Sciences": { available: false, price: null },
+    "Foundation in Design": { available: false, price: null },
+
+    "A-Level Science": { available: false, price: null },
+    "A-Level Arts": { available: false, price: null },
+    "AUSMAT": { available: false, price: null },
+    "IB Diploma": { available: false, price: null },
+
+    "Diploma Business Admin": { available: false, price: null },
+    "Diploma Accounting": { available: false, price: null },
+    "Diploma Finance": { available: false, price: null },
+    "Diploma Marketing": { available: false, price: null },
+    "Diploma HRM": { available: false, price: null },
+    "Diploma IT": { available: false, price: null },
+    "Diploma Computer Science": { available: false, price: null },
+    "Diploma Software Engineering": { available: false, price: null },
+    "Diploma Networking Security": { available: false, price: null },
+    "Diploma Mechanical Engineering": { available: false, price: null },
+    "Diploma Electrical Engineering": { available: false, price: null },
+    "Diploma Civil Engineering": { available: false, price: null },
+    "Diploma Mechatronics": { available: false, price: null },
+    "Diploma Nursing": { available: false, price: null },
+    "Diploma Pharmacy": { available: false, price: null },
+    "Diploma Medical Lab Tech": { available: false, price: null },
+    "Diploma Hotel Management": { available: false, price: null },
+    "Diploma Culinary Arts": { available: false, price: null },
+    "Diploma Tourism": { available: false, price: null },
+    "Diploma Early Childhood": { available: false, price: null },
+    "Diploma Mass Communication": { available: false, price: null },
+    "Diploma Graphic Design": { available: false, price: null },
+
+    "BBA": { available: true, price: "55000" },
+    "Bachelor Accounting": { available: true, price: "65000" },
+    "Bachelor Finance": { available: true, price: "55000" },
+    "Bachelor Marketing": { available: true, price: "55000" },
+    "Bachelor HR": { available: true, price: "55000" },
+    "Bachelor Economics": { available: true, price: "55000" },
+
+    "Bachelor Mechanical Engineering": { available: true, price: "75000" },
+    "Bachelor Civil Engineering": { available: true, price: "75000" },
+    "Bachelor Chemical Engineering": { available: true, price: "75000" },
+    "Bachelor Petroleum Engineering": { available: false, price: null },
+    "Bachelor Electrical Engineering": { available: true, price: "75000" },
+    "Bachelor Electronic Engineering": { available: true, price: "75000" },
+    "Bachelor Biomedical Engineering": { available: false, price: null },
+    "Bachelor Naval/Offshore Eng": { available: false, price: null },
+
+    "Bachelor CS Software Eng": { available: true, price: "50000" },
+    "Bachelor CS Network Security": { available: true, price: "50000" },
+    "Bachelor CS Multimedia": { available: true, price: "50000" },
+    "Bachelor CS Data Science": { available: true, price: "50000" },
+    "Bachelor AI": { available: true, price: "50000" },
+
+    "Bachelor Architecture": { available: true, price: "70000" },
+    "Bachelor Quantity Surveying": { available: true, price: "65000" },
+    "Bachelor Construction": { available: false, price: null },
+    "Bachelor Urban Planning": { available: true, price: "60000" },
+    "Bachelor Landscape Architecture": { available: false, price: null },
+    "Bachelor Real Estate": { available: false, price: null },
+
+    "Bachelor Physics": { available: true, price: "40000" },
+    "Bachelor Chemistry": { available: true, price: "40000" },
+    "Bachelor Biology": { available: true, price: "40000" },
+    "Bachelor Industrial Chemistry": { available: false, price: null },
+    "Bachelor Industrial Maths": { available: true, price: "40000" },
+    "Bachelor Statistics": { available: true, price: "40000" },
+    "Bachelor Biotechnology": { available: true, price: "40000" },
+
+    "MBBS": { available: true, price: "165000" },
+    "Bachelor Pharmacy": { available: true, price: "80000" },
+    "Bachelor Nursing": { available: true, price: "70000" },
+    "Bachelor Medical Science": { available: true, price: "65000" },
+
+    "Bachelor Psychology": { available: true, price: "45000" },
+    "Bachelor HRD": { available: false, price: null },
+    "Bachelor Mass Communication": { available: true, price: "45000" },
+    "Bachelor TESL": { available: true, price: "45000" },
+    "Bachelor Music": { available: false, price: null },
+
+    "MBA": { available: true, price: "35000" },
+    "MBA Online": { available: true, price: "30000" },
+
+    "Master Management": { available: true, price: "28000" },
+    "Master Architecture": { available: false, price: null },
+    "MSc Engineering": { available: true, price: "25000" },
+    "MSc Medical Sciences": { available: true, price: "30000" },
+
+    "Master Education": { available: true, price: "20000" },
+    "Master Education (Research)": { available: true, price: "20000" },
+
+    "MPhil Business": { available: true, price: "20000" },
+
+    "PhD Business": { available: true, price: "35000" },
+    "PhD Engineering": { available: true, price: "30000" },
+    "PhD IT": { available: true, price: "30000" },
+    "PhD Education": { available: true, price: "20000" },
+    "PhD Science": { available: true, price: "30000" },
+    "PhD Medical": { available: true, price: "35000" },
+
+    "DBA": { available: true, price: "40000" }
+  }
+},
+{
+  university: "Universiti Malaysia Sarawak (UNIMAS)",
+  shortName: "UNIMAS",
+  type: "Public",
+  currency: "MYR",
+  website: universityWebsites["UNIMAS"],
+  programmes: {
+
+    "Foundation in Science": { available: true, price: "9,000" },
+    "Foundation in Engineering": { available: true, price: "9,000" },
+    "Foundation in Business": { available: false, price: null },
+    "Foundation in IT": { available: true, price: "9,000" },
+    "Foundation in Arts & Social Sc.": { available: true, price: "9,000" },
+    "Foundation in Computing": { available: true, price: "9,000" },
+    "Foundation in Health Sciences": { available: false, price: null },
+    "Foundation in Design": { available: false, price: null },
+
+    "A-Level Science": { available: false, price: null },
+    "A-Level Arts": { available: false, price: null },
+    "AUSMAT": { available: false, price: null },
+    "IB Diploma": { available: false, price: null },
+
+    "Diploma Business Admin": { available: true, price: "18,000" },
+    "Diploma Accounting": { available: true, price: "18,000" },
+    "Diploma Finance": { available: false, price: null },
+    "Diploma Marketing": { available: false, price: null },
+    "Diploma HRM": { available: false, price: null },
+    "Diploma IT": { available: true, price: "18,000" },
+    "Diploma Computer Science": { available: true, price: "18,000" },
+    "Diploma Software Engineering": { available: false, price: null },
+    "Diploma Networking Security": { available: false, price: null },
+    "Diploma Mechanical Engineering": { available: false, price: null },
+    "Diploma Electrical Engineering": { available: false, price: null },
+    "Diploma Civil Engineering": { available: false, price: null },
+    "Diploma Mechatronics": { available: false, price: null },
+    "Diploma Nursing": { available: false, price: null },
+    "Diploma Pharmacy": { available: false, price: null },
+    "Diploma Medical Lab Tech": { available: false, price: null },
+    "Diploma Hotel Management": { available: false, price: null },
+    "Diploma Culinary Arts": { available: false, price: null },
+    "Diploma Tourism": { available: false, price: null },
+    "Diploma Early Childhood": { available: false, price: null },
+    "Diploma Mass Communication": { available: false, price: null },
+    "Diploma Graphic Design": { available: false, price: null },
+
+    "BBA": { available: true, price: "45,000" },
+    "Bachelor Accounting": { available: true, price: "50,000" },
+    "Bachelor Finance": { available: true, price: "45,000" },
+    "Bachelor Marketing": { available: true, price: "45,000" },
+    "Bachelor HR": { available: true, price: "45,000" },
+    "Bachelor Economics": { available: true, price: "45,000" },
+
+    "Bachelor Mechanical Engineering": { available: false, price: null },
+    "Bachelor Civil Engineering": { available: true, price: "65,000" },
+    "Bachelor Chemical Engineering": { available: false, price: null },
+    "Bachelor Petroleum Engineering": { available: false, price: null },
+    "Bachelor Electrical Engineering": { available: true, price: "65,000" },
+    "Bachelor Electronic Engineering": { available: true, price: "65,000" },
+    "Bachelor Biomedical Engineering": { available: false, price: null },
+    "Bachelor Naval/Offshore Eng": { available: false, price: null },
+
+    "Bachelor CS Software Eng": { available: true, price: "45,000" },
+    "Bachelor CS Network Security": { available: true, price: "45,000" },
+    "Bachelor CS Multimedia": { available: true, price: "45,000" },
+    "Bachelor CS Data Science": { available: true, price: "45,000" },
+    "Bachelor AI": { available: true, price: "45,000" },
+
+    "Bachelor Architecture": { available: false, price: null },
+    "Bachelor Quantity Surveying": { available: true, price: "60,000" },
+    "Bachelor Construction": { available: true, price: "60,000" },
+    "Bachelor Urban Planning": { available: true, price: "60,000" },
+    "Bachelor Landscape Architecture": { available: true, price: "60,000" },
+    "Bachelor Real Estate": { available: false, price: null },
+
+    "Bachelor Physics": { available: true, price: "42,000" },
+    "Bachelor Chemistry": { available: true, price: "42,000" },
+    "Bachelor Biology": { available: true, price: "42,000" },
+    "Bachelor Industrial Chemistry": { available: true, price: "42,000" },
+    "Bachelor Industrial Maths": { available: true, price: "42,000" },
+    "Bachelor Statistics": { available: true, price: "42,000" },
+    "Bachelor Biotechnology": { available: true, price: "42,000" },
+
+    "MBBS": { available: false, price: null },
+    "Bachelor Pharmacy": { available: false, price: null },
+    "Bachelor Nursing": { available: false, price: null },
+    "Bachelor Medical Science": { available: false, price: null },
+
+    "Bachelor Psychology": { available: true, price: "45,000" },
+    "Bachelor HRD": { available: true, price: "45,000" },
+    "Bachelor Mass Communication": { available: true, price: "45,000" },
+    "Bachelor TESL": { available: true, price: "45,000" },
+    "Bachelor Music": { available: false, price: null },
+
+    "MBA": { available: true, price: "25,000" },
+    "MBA Online": { available: true, price: "18,000" },
+    "Master Management": { available: true, price: "20,000" },
+    "Master Architecture": { available: false, price: null },
+    "MSc Engineering": { available: false, price: null },
+    "MSc Medical Sciences": { available: false, price: null },
+    "Master Education": { available: true, price: "18,000" },
+    "Master Education (Research)": { available: true, price: "18,000" },
+    "MPhil Business": { available: true, price: "20,000" },
+
+    "PhD Business": { available: true, price: "25,000" },
+    "PhD Engineering": { available: false, price: null },
+    "PhD IT": { available: true, price: "25,000" },
+    "PhD Education": { available: true, price: "20,000" },
+    "PhD Science": { available: true, price: "25,000" },
+    "PhD Medical": { available: false, price: null },
+
+    "DBA": { available: true, price: "30,000" }
+  }
+},
+{
+  university: "Universiti Malaysia Sabah (UMS)",
+  shortName: "UMS",
+  type: "Public",
+  currency: "MYR",
+  website: universityWebsites["UMS"],
+  programmes: {
+
+    "Foundation in Science": { available: true, price: "10,000" },
+    "Foundation in Engineering": { available: true, price: "10,000" },
+    "Foundation in Business": { available: false, price: null },
+    "Foundation in IT": { available: true, price: "10,000" },
+    "Foundation in Arts & Social Sc.": { available: true, price: "10,000" },
+    "Foundation in Computing": { available: true, price: "10,000" },
+    "Foundation in Health Sciences": { available: false, price: null },
+    "Foundation in Design": { available: false, price: null },
+
+    "A-Level Science": { available: false, price: null },
+    "A-Level Arts": { available: false, price: null },
+    "AUSMAT": { available: false, price: null },
+    "IB Diploma": { available: false, price: null },
+
+    "Diploma Business Admin": { available: true, price: "16,000" },
+    "Diploma Accounting": { available: true, price: "16,000" },
+    "Diploma Finance": { available: false, price: null },
+    "Diploma Marketing": { available: false, price: null },
+    "Diploma HRM": { available: false, price: null },
+    "Diploma IT": { available: true, price: "16,000" },
+    "Diploma Computer Science": { available: true, price: "16,000" },
+    "Diploma Software Engineering": { available: false, price: null },
+    "Diploma Networking Security": { available: false, price: null },
+    "Diploma Mechanical Engineering": { available: false, price: null },
+    "Diploma Electrical Engineering": { available: false, price: null },
+    "Diploma Civil Engineering": { available: false, price: null },
+    "Diploma Mechatronics": { available: false, price: null },
+    "Diploma Nursing": { available: false, price: null },
+    "Diploma Pharmacy": { available: false, price: null },
+    "Diploma Medical Lab Tech": { available: false, price: null },
+    "Diploma Hotel Management": { available: true, price: "18,000" },
+    "Diploma Culinary Arts": { available: true, price: "18,000" },
+    "Diploma Tourism": { available: true, price: "18,000" },
+    "Diploma Early Childhood": { available: false, price: null },
+    "Diploma Mass Communication": { available: false, price: null },
+    "Diploma Graphic Design": { available: false, price: null },
+
+    "BBA": { available: true, price: "45,000" },
+    "Bachelor Accounting": { available: true, price: "50,000" },
+    "Bachelor Finance": { available: true, price: "45,000" },
+    "Bachelor Marketing": { available: true, price: "45,000" },
+    "Bachelor HR": { available: true, price: "45,000" },
+    "Bachelor Economics": { available: true, price: "45,000" },
+
+    "Bachelor Mechanical Engineering": { available: true, price: "65,000" },
+    "Bachelor Civil Engineering": { available: true, price: "65,000" },
+    "Bachelor Chemical Engineering": { available: true, price: "65,000" },
+    "Bachelor Petroleum Engineering": { available: false, price: null },
+    "Bachelor Electrical Engineering": { available: true, price: "65,000" },
+    "Bachelor Electronic Engineering": { available: true, price: "65,000" },
+    "Bachelor Biomedical Engineering": { available: false, price: null },
+    "Bachelor Naval/Offshore Eng": { available: false, price: null },
+
+    "Bachelor CS Software Eng": { available: true, price: "45,000" },
+    "Bachelor CS Network Security": { available: true, price: "45,000" },
+    "Bachelor CS Multimedia": { available: true, price: "45,000" },
+    "Bachelor CS Data Science": { available: true, price: "45,000" },
+    "Bachelor AI": { available: true, price: "45,000" },
+
+    "Bachelor Architecture": { available: true, price: "60,000" },
+    "Bachelor Quantity Surveying": { available: true, price: "60,000" },
+    "Bachelor Construction": { available: true, price: "60,000" },
+    "Bachelor Urban Planning": { available: true, price: "60,000" },
+    "Bachelor Landscape Architecture": { available: true, price: "60,000" },
+    "Bachelor Real Estate": { available: false, price: null },
+
+    "Bachelor Physics": { available: true, price: "40,000" },
+    "Bachelor Chemistry": { available: true, price: "40,000" },
+    "Bachelor Biology": { available: true, price: "40,000" },
+    "Bachelor Industrial Chemistry": { available: true, price: "40,000" },
+    "Bachelor Industrial Maths": { available: true, price: "40,000" },
+    "Bachelor Statistics": { available: true, price: "40,000" },
+    "Bachelor Biotechnology": { available: true, price: "40,000" },
+
+    "MBBS": { available: true, price: "300,000" },
+    "Bachelor Pharmacy": { available: true, price: "180,000" },
+    "Bachelor Nursing": { available: true, price: "80,000" },
+    "Bachelor Medical Science": { available: true, price: "80,000" },
+
+    "Bachelor Psychology": { available: true, price: "42,000" },
+    "Bachelor HRD": { available: true, price: "42,000" },
+    "Bachelor Mass Communication": { available: true, price: "45,000" },
+    "Bachelor TESL": { available: true, price: "42,000" },
+    "Bachelor Music": { available: true, price: "42,000" },
+
+    "MBA": { available: true, price: "22,000" },
+    "MBA Online": { available: false, price: null },
+    "Master Management": { available: true, price: "20,000" },
+    "Master Architecture": { available: false, price: null },
+    "MSc Engineering": { available: true, price: "18,000" },
+    "MSc Medical Sciences": { available: true, price: "22,000" },
+    "Master Education": { available: true, price: "16,000" },
+    "Master Education (Research)": { available: true, price: "16,000" },
+    "MPhil Business": { available: true, price: "20,000" },
+
+    "PhD Business": { available: true, price: "25,000" },
+    "PhD Engineering": { available: true, price: "22,000" },
+    "PhD IT": { available: true, price: "22,000" },
+    "PhD Education": { available: true, price: "18,000" },
+    "PhD Science": { available: true, price: "22,000" },
+    "PhD Medical": { available: true, price: "28,000" },
+
+    "DBA": { available: true, price: "30,000" }
+  }
+},
+{
+  university: "Universiti Pendidikan Sultan Idris (UPSI)",
+  shortName: "UPSI",
+  type: "Public",
+  currency: "MYR",
+  website: universityWebsites["UPSI"],
+  programmes: {
+
+    "Foundation in Science": { available: true, price: "7,500" },
+    "Foundation in Engineering": { available: false, price: null },
+    "Foundation in Business": { available: false, price: null },
+    "Foundation in IT": { available: false, price: null },
+    "Foundation in Arts & Social Sc.": { available: true, price: "7,500" },
+    "Foundation in Computing": { available: false, price: null },
+    "Foundation in Health Sciences": { available: false, price: null },
+    "Foundation in Design": { available: false, price: null },
+
+    "A-Level Science": { available: false, price: null },
+    "A-Level Arts": { available: false, price: null },
+    "AUSMAT": { available: false, price: null },
+    "IB Diploma": { available: false, price: null },
+
+    "Diploma Business Admin": { available: true, price: "15,000" },
+    "Diploma Accounting": { available: true, price: "15,000" },
+    "Diploma Finance": { available: false, price: null },
+    "Diploma Marketing": { available: false, price: null },
+    "Diploma HRM": { available: false, price: null },
+    "Diploma IT": { available: true, price: "14,000" },
+    "Diploma Computer Science": { available: true, price: "14,000" },
+    "Diploma Software Engineering": { available: false, price: null },
+    "Diploma Networking Security": { available: false, price: null },
+    "Diploma Mechanical Engineering": { available: false, price: null },
+    "Diploma Electrical Engineering": { available: false, price: null },
+    "Diploma Civil Engineering": { available: false, price: null },
+    "Diploma Mechatronics": { available: false, price: null },
+    "Diploma Nursing": { available: false, price: null },
+    "Diploma Pharmacy": { available: false, price: null },
+    "Diploma Medical Lab Tech": { available: false, price: null },
+    "Diploma Hotel Management": { available: false, price: null },
+    "Diploma Culinary Arts": { available: false, price: null },
+    "Diploma Tourism": { available: false, price: null },
+    "Diploma Early Childhood": { available: true, price: "14,000" },
+    "Diploma Mass Communication": { available: false, price: null },
+    "Diploma Graphic Design": { available: false, price: null },
+
+    "BBA": { available: true, price: "35,000" },
+    "Bachelor Accounting": { available: true, price: "40,000" },
+    "Bachelor Finance": { available: false, price: null },
+    "Bachelor Marketing": { available: false, price: null },
+    "Bachelor HR": { available: true, price: "35,000" },
+    "Bachelor Economics": { available: false, price: null },
+
+    "Bachelor Mechanical Engineering": { available: false, price: null },
+    "Bachelor Civil Engineering": { available: false, price: null },
+    "Bachelor Chemical Engineering": { available: false, price: null },
+    "Bachelor Petroleum Engineering": { available: false, price: null },
+    "Bachelor Electrical Engineering": { available: false, price: null },
+    "Bachelor Electronic Engineering": { available: false, price: null },
+    "Bachelor Biomedical Engineering": { available: false, price: null },
+    "Bachelor Naval/Offshore Eng": { available: false, price: null },
+
+    "Bachelor CS Software Eng": { available: true, price: "35,000" },
+    "Bachelor CS Network Security": { available: false, price: null },
+    "Bachelor CS Multimedia": { available: true, price: "35,000" },
+    "Bachelor CS Data Science": { available: true, price: "35,000" },
+    "Bachelor AI": { available: false, price: null },
+
+    "Bachelor Architecture": { available: true, price: "48,000" },
+    "Bachelor Quantity Surveying": { available: false, price: null },
+    "Bachelor Construction": { available: false, price: null },
+    "Bachelor Urban Planning": { available: false, price: null },
+    "Bachelor Landscape Architecture": { available: false, price: null },
+    "Bachelor Real Estate": { available: false, price: null },
+
+    "Bachelor Physics": { available: true, price: "30,000" },
+    "Bachelor Chemistry": { available: true, price: "30,000" },
+    "Bachelor Biology": { available: true, price: "30,000" },
+    "Bachelor Industrial Chemistry": { available: false, price: null },
+    "Bachelor Industrial Maths": { available: false, price: null },
+    "Bachelor Statistics": { available: true, price: "30,000" },
+    "Bachelor Biotechnology": { available: false, price: null },
+
+    "Bachelor Psychology": { available: true, price: "32,000" },
+    "Bachelor HRD": { available: true, price: "32,000" },
+    "Bachelor Mass Communication": { available: true, price: "32,000" },
+    "Bachelor TESL": { available: true, price: "32,000" },
+    "Bachelor Music": { available: true, price: "32,000" },
+
+    "MBBS": { available: false, price: null },
+    "Bachelor Pharmacy": { available: false, price: null },
+    "Bachelor Nursing": { available: false, price: null },
+    "Bachelor Medical Science": { available: false, price: null },
+
+    "MBA": { available: true, price: "20,000" },
+    "MBA Online": { available: true, price: "15,000" },
+    "Master Management": { available: true, price: "18,000" },
+    "Master Architecture": { available: true, price: "22,000" },
+    "MSc Engineering": { available: false, price: null },
+    "MSc Medical Sciences": { available: false, price: null },
+    "Master Education": { available: true, price: "15,000" },
+    "Master Education (Research)": { available: true, price: "15,000" },
+    "MPhil Business": { available: true, price: "18,000" },
+
+    "PhD Business": { available: true, price: "22,000" },
+    "PhD Engineering": { available: false, price: null },
+    "PhD IT": { available: false, price: null },
+    "PhD Education": { available: true, price: "18,000" },
+    "PhD Science": { available: true, price: "20,000" },
+    "PhD Medical": { available: false, price: null },
+
+    "DBA": { available: true, price: "25,000" }
+  }
+},
+
+{
+  university: "Universiti Sains Islam Malaysia (USIM)",
+  shortName: "USIM",
+  type: "Public",
+  currency: "MYR",
+  website: universityWebsites["USIM"],
+  programmes: {
+
+    "Foundation in Science": { available: true, price: "7,000" },
+    "Foundation in Engineering": { available: false, price: null },
+    "Foundation in Business": { available: false, price: null },
+    "Foundation in IT": { available: false, price: null },
+    "Foundation in Arts & Social Sc.": { available: true, price: "7,000" },
+    "Foundation in Computing": { available: false, price: null },
+    "Foundation in Health Sciences": { available: true, price: "7,500" },
+    "Foundation in Design": { available: false, price: null },
+
+    "A-Level Science": { available: false, price: null },
+    "A-Level Arts": { available: false, price: null },
+    "AUSMAT": { available: false, price: null },
+    "IB Diploma": { available: false, price: null },
+
+    "Diploma Business Admin": { available: false, price: null },
+    "Diploma Accounting": { available: false, price: null },
+    "Diploma Finance": { available: false, price: null },
+    "Diploma Marketing": { available: false, price: null },
+    "Diploma HRM": { available: false, price: null },
+    "Diploma IT": { available: false, price: null },
+    "Diploma Computer Science": { available: false, price: null },
+    "Diploma Software Engineering": { available: false, price: null },
+    "Diploma Networking Security": { available: false, price: null },
+
+    "Diploma Mechanical Engineering": { available: false, price: null },
+    "Diploma Electrical Engineering": { available: false, price: null },
+    "Diploma Civil Engineering": { available: false, price: null },
+    "Diploma Mechatronics": { available: false, price: null },
+
+    "Diploma Nursing": { available: false, price: null },
+    "Diploma Pharmacy": { available: false, price: null },
+    "Diploma Medical Lab Tech": { available: false, price: null },
+
+    "Diploma Hotel Management": { available: false, price: null },
+    "Diploma Culinary Arts": { available: false, price: null },
+    "Diploma Tourism": { available: false, price: null },
+
+    "Diploma Early Childhood": { available: false, price: null },
+    "Diploma Mass Communication": { available: false, price: null },
+    "Diploma Graphic Design": { available: false, price: null },
+
+    "BBA": { available: false, price: null },
+    "Bachelor Accounting": { available: true, price: "40,000" },
+    "Bachelor Finance": { available: false, price: null },
+    "Bachelor Marketing": { available: false, price: null },
+    "Bachelor HR": { available: false, price: null },
+    "Bachelor Economics": { available: false, price: null },
+
+    "Bachelor Mechanical Engineering": { available: false, price: null },
+    "Bachelor Civil Engineering": { available: false, price: null },
+    "Bachelor Chemical Engineering": { available: false, price: null },
+    "Bachelor Petroleum Engineering": { available: false, price: null },
+
+    "Bachelor Electrical Engineering": { available: false, price: null },
+    "Bachelor Electronic Engineering": { available: false, price: null },
+    "Bachelor Biomedical Engineering": { available: false, price: null },
+
+    "Bachelor Naval/Offshore Eng": { available: false, price: null },
+
+    "Bachelor CS Software Eng": { available: false, price: null },
+    "Bachelor CS Network Security": { available: false, price: null },
+    "Bachelor CS Multimedia": { available: false, price: null },
+    "Bachelor CS Data Science": { available: false, price: null },
+    "Bachelor AI": { available: false, price: null },
+
+    "Bachelor Architecture": { available: false, price: null },
+    "Bachelor Quantity Surveying": { available: false, price: null },
+    "Bachelor Construction": { available: false, price: null },
+    "Bachelor Urban Planning": { available: false, price: null },
+    "Bachelor Landscape Architecture": { available: false, price: null },
+    "Bachelor Real Estate": { available: false, price: null },
+
+    "Bachelor Physics": { available: false, price: null },
+    "Bachelor Chemistry": { available: false, price: null },
+    "Bachelor Biology": { available: false, price: null },
+    "Bachelor Industrial Chemistry": { available: false, price: null },
+    "Bachelor Industrial Maths": { available: false, price: null },
+    "Bachelor Statistics": { available: false, price: null },
+    "Bachelor Biotechnology": { available: false, price: null },
+
+    "Bachelor Psychology": { available: true, price: "30,000" },
+    "Bachelor HRD": { available: false, price: null },
+    "Bachelor Mass Communication": { available: true, price: "30,000" },
+    "Bachelor TESL": { available: true, price: "30,000" },
+    "Bachelor Music": { available: false, price: null },
+
+    "MBBS": { available: false, price: null },
+    "Bachelor Pharmacy": { available: false, price: null },
+    "Bachelor Nursing": { available: false, price: null },
+    "Bachelor Medical Science": { available: false, price: null },
+
+    "MBA": { available: false, price: null },
+    "MBA Online": { available: false, price: null },
+
+    "Master Management": { available: false, price: null },
+    "Master Architecture": { available: false, price: null },
+    "MSc Engineering": { available: false, price: null },
+    "MSc Medical Sciences": { available: false, price: null },
+
+    "Master Education": { available: true, price: "12,000" },
+    "Master Education (Research)": { available: true, price: "12,000" },
+
+    "MPhil Business": { available: false, price: null },
+
+    "PhD Business": { available: false, price: null },
+    "PhD Engineering": { available: false, price: null },
+    "PhD IT": { available: false, price: null },
+    "PhD Education": { available: true, price: "15,000" },
+    "PhD Science": { available: false, price: null },
+    "PhD Medical": { available: false, price: null },
+
+    "DBA": { available: false, price: null }
+  }
+},
+{
+  university: "Universiti Teknikal Malaysia Melaka (UTeM)",
+  shortName: "UTeM",
+  type: "Public",
+  currency: "MYR",
+  website: universityWebsites["UTeM"],
+  programmes: {
+
+    "Foundation in Science": { available: false, price: null },
+    "Foundation in Engineering": { available: false, price: null },
+    "Foundation in Business": { available: false, price: null },
+    "Foundation in IT": { available: false, price: null },
+    "Foundation in Arts & Social Sc.": { available: false, price: null },
+    "Foundation in Computing": { available: false, price: null },
+    "Foundation in Health Sciences": { available: false, price: null },
+    "Foundation in Design": { available: false, price: null },
+
+    "A-Level Science": { available: false, price: null },
+    "A-Level Arts": { available: false, price: null },
+    "AUSMAT": { available: false, price: null },
+    "IB Diploma": { available: false, price: null },
+
+    "Diploma Business Admin": { available: false, price: null },
+    "Diploma Accounting": { available: false, price: null },
+    "Diploma Finance": { available: false, price: null },
+    "Diploma Marketing": { available: false, price: null },
+    "Diploma HRM": { available: false, price: null },
+
+    "Diploma IT": { available: true, price: "38,800" },
+    "Diploma Computer Science": { available: true, price: "38,800" },
+    "Diploma Software Engineering": { available: false, price: null },
+    "Diploma Networking Security": { available: false, price: null },
+
+    "Diploma Mechanical Engineering": { available: true, price: "44,500" },
+    "Diploma Electrical Engineering": { available: true, price: "44,500" },
+    "Diploma Civil Engineering": { available: false, price: null },
+    "Diploma Mechatronics": { available: true, price: "44,500" },
+
+    "Diploma Nursing": { available: false, price: null },
+    "Diploma Pharmacy": { available: false, price: null },
+    "Diploma Medical Lab Tech": { available: false, price: null },
+
+    "Diploma Hotel Management": { available: false, price: null },
+    "Diploma Culinary Arts": { available: false, price: null },
+    "Diploma Tourism": { available: false, price: null },
+
+    "Diploma Early Childhood": { available: false, price: null },
+    "Diploma Mass Communication": { available: false, price: null },
+    "Diploma Graphic Design": { available: false, price: null },
+
+    "BBA": { available: true, price: "63,000" },
+    "Bachelor Accounting": { available: true, price: "63,000" },
+    "Bachelor Finance": { available: false, price: null },
+    "Bachelor Marketing": { available: true, price: "63,000" },
+    "Bachelor HR": { available: true, price: "63,000" },
+    "Bachelor Economics": { available: true, price: "63,000" },
+
+    "Bachelor Mechanical Engineering": { available: true, price: "75,000" },
+    "Bachelor Civil Engineering": { available: true, price: "75,000" },
+    "Bachelor Chemical Engineering": { available: true, price: "75,000" },
+    "Bachelor Petroleum Engineering": { available: false, price: null },
+
+    "Bachelor Electrical Engineering": { available: true, price: "75,000" },
+    "Bachelor Electronic Engineering": { available: true, price: "75,000" },
+    "Bachelor Biomedical Engineering": { available: true, price: "75,000" },
+
+    "Bachelor Naval/Offshore Eng": { available: false, price: null },
+
+    "Bachelor CS Software Eng": { available: true, price: "71,000" },
+    "Bachelor CS Network Security": { available: true, price: "71,000" },
+    "Bachelor CS Multimedia": { available: true, price: "71,000" },
+    "Bachelor CS Data Science": { available: true, price: "71,000" },
+    "Bachelor AI": { available: true, price: "71,000" },
+
+    "Bachelor Architecture": { available: true, price: "51,620" },
+    "Bachelor Quantity Surveying": { available: true, price: "63,000" },
+    "Bachelor Construction": { available: true, price: "63,000" },
+    "Bachelor Urban Planning": { available: true, price: "63,000" },
+    "Bachelor Landscape Architecture": { available: true, price: "63,000" },
+    "Bachelor Real Estate": { available: false, price: null },
+
+    "Bachelor Physics": { available: true, price: "63,000" },
+    "Bachelor Chemistry": { available: true, price: "63,000" },
+    "Bachelor Biology": { available: true, price: "63,000" },
+    "Bachelor Industrial Chemistry": { available: true, price: "63,000" },
+    "Bachelor Industrial Maths": { available: true, price: "63,000" },
+    "Bachelor Statistics": { available: false, price: null },
+    "Bachelor Biotechnology": { available: true, price: "63,000" },
+
+    "MBBS": { available: false, price: null },
+    "Bachelor Pharmacy": { available: false, price: null },
+    "Bachelor Nursing": { available: false, price: null },
+    "Bachelor Medical Science": { available: false, price: null },
+
+    "Bachelor Psychology": { available: true, price: "63,000" },
+    "Bachelor HRD": { available: true, price: "63,000" },
+    "Bachelor Mass Communication": { available: true, price: "63,000" },
+    "Bachelor TESL": { available: true, price: "55,000" },
+    "Bachelor Music": { available: false, price: null },
+
+    "MBA": { available: true, price: "32,154" },
+    "MBA Online": { available: false, price: null },
+
+    "Master Management": { available: true, price: "26,500" },
+    "Master Architecture": { available: true, price: "29,500" },
+    "MSc Engineering": { available: true, price: "31,000" },
+    "MSc Medical Sciences": { available: false, price: null },
+
+    "Master Education": { available: true, price: "26,500" },
+    "Master Education (Research)": { available: true, price: "25,400" },
+
+    "MPhil Business": { available: true, price: "25,400" },
+
+    "PhD Business": { available: true, price: "48,600" },
+    "PhD Engineering": { available: true, price: "51,600" },
+    "PhD IT": { available: true, price: "48,600" },
+    "PhD Education": { available: true, price: "48,600" },
+    "PhD Science": { available: true, price: "48,600" },
+    "PhD Medical": { available: false, price: null },
+
+    "DBA": { available: true, price: "60,154" }
+  }
+},
+
+
+{
+  university: "Universiti Tun Hussein Onn Malaysia (UTHM)",
+  shortName: "UTHM",
+  type: "Public",
+  currency: "MYR",
+  website: universityWebsites["UTHM"],
+  programmes: {
+
+    "Foundation in Science": { available: false, price: null },
+    "Foundation in Engineering": { available: false, price: null },
+    "Foundation in Business": { available: false, price: null },
+    "Foundation in IT": { available: false, price: null },
+    "Foundation in Arts & Social Sc.": { available: false, price: null },
+    "Foundation in Computing": { available: false, price: null },
+    "Foundation in Health Sciences": { available: false, price: null },
+    "Foundation in Design": { available: false, price: null },
+
+    "A-Level Science": { available: false, price: null },
+    "A-Level Arts": { available: false, price: null },
+    "AUSMAT": { available: false, price: null },
+    "IB Diploma": { available: false, price: null },
+
+    "Diploma Business Admin": { available: false, price: null },
+    "Diploma Accounting": { available: false, price: null },
+    "Diploma Finance": { available: false, price: null },
+    "Diploma Marketing": { available: false, price: null },
+    "Diploma HRM": { available: false, price: null },
+
+    "Diploma IT": { available: true, price: "38,800" },
+    "Diploma Computer Science": { available: true, price: "38,800" },
+    "Diploma Software Engineering": { available: false, price: null },
+    "Diploma Networking Security": { available: false, price: null },
+
+    "Diploma Mechanical Engineering": { available: true, price: "44,500" },
+    "Diploma Electrical Engineering": { available: true, price: "44,500" },
+    "Diploma Civil Engineering": { available: true, price: "44,500" },
+    "Diploma Mechatronics": { available: true, price: "44,500" },
+
+    "Diploma Nursing": { available: false, price: null },
+    "Diploma Pharmacy": { available: false, price: null },
+    "Diploma Medical Lab Tech": { available: false, price: null },
+
+    "Diploma Hotel Management": { available: false, price: null },
+    "Diploma Culinary Arts": { available: false, price: null },
+    "Diploma Tourism": { available: false, price: null },
+
+    "Diploma Early Childhood": { available: false, price: null },
+    "Diploma Mass Communication": { available: false, price: null },
+    "Diploma Graphic Design": { available: false, price: null },
+
+    "BBA": { available: true, price: "63,000" },
+    "Bachelor Accounting": { available: true, price: "63,000" },
+    "Bachelor Finance": { available: true, price: "63,000" },
+    "Bachelor Marketing": { available: true, price: "63,000" },
+    "Bachelor HR": { available: true, price: "63,000" },
+    "Bachelor Economics": { available: true, price: "63,000" },
+
+    "Bachelor Mechanical Engineering": { available: true, price: "75,000" },
+    "Bachelor Civil Engineering": { available: true, price: "75,000" },
+    "Bachelor Chemical Engineering": { available: true, price: "75,000" },
+    "Bachelor Petroleum Engineering": { available: false, price: null },
+
+    "Bachelor Electrical Engineering": { available: true, price: "75,000" },
+    "Bachelor Electronic Engineering": { available: true, price: "75,000" },
+    "Bachelor Biomedical Engineering": { available: true, price: "75,000" },
+
+    "Bachelor Naval/Offshore Eng": { available: false, price: null },
+
+    "Bachelor CS Software Eng": { available: true, price: "71,000" },
+    "Bachelor CS Network Security": { available: true, price: "71,000" },
+    "Bachelor CS Multimedia": { available: true, price: "71,000" },
+    "Bachelor CS Data Science": { available: true, price: "71,000" },
+    "Bachelor AI": { available: true, price: "71,000" },
+
+    "Bachelor Architecture": { available: true, price: "51,620" },
+    "Bachelor Quantity Surveying": { available: true, price: "63,000" },
+    "Bachelor Construction": { available: true, price: "63,000" },
+    "Bachelor Urban Planning": { available: true, price: "63,000" },
+    "Bachelor Landscape Architecture": { available: true, price: "63,000" },
+    "Bachelor Real Estate": { available: false, price: null },
+
+    "Bachelor Physics": { available: true, price: "63,000" },
+    "Bachelor Chemistry": { available: true, price: "63,000" },
+    "Bachelor Biology": { available: true, price: "63,000" },
+    "Bachelor Industrial Chemistry": { available: true, price: "63,000" },
+    "Bachelor Industrial Maths": { available: true, price: "63,000" },
+    "Bachelor Statistics": { available: true, price: "63,000" },
+    "Bachelor Biotechnology": { available: true, price: "63,000" },
+
+    "MBBS": { available: false, price: null },
+    "Bachelor Pharmacy": { available: false, price: null },
+    "Bachelor Nursing": { available: false, price: null },
+    "Bachelor Medical Science": { available: false, price: null },
+
+    "Bachelor Psychology": { available: true, price: "63,000" },
+    "Bachelor HRD": { available: true, price: "63,000" },
+    "Bachelor Mass Communication": { available: true, price: "63,000" },
+    "Bachelor TESL": { available: true, price: "55,000" },
+    "Bachelor Music": { available: false, price: null },
+
+    "MBA": { available: true, price: "32154" },
+    "MBA Online": { available: false, price: null },
+
+    "Master Management": { available: true, price: "26500" },
+    "Master Architecture": { available: true, price: "29500" },
+    "MSc Engineering": { available: true, price: "31000" },
+    "MSc Medical Sciences": { available: false, price: null },
+
+    "Master Education": { available: true, price: "26500" },
+    "Master Education (Research)": { available: true, price: "25400" },
+
+    "MPhil Business": { available: true, price: "25400" },
+
+    "PhD Business": { available: true, price: "48600" },
+    "PhD Engineering": { available: true, price: "51600" },
+    "PhD IT": { available: true, price: "48600" },
+    "PhD Education": { available: true, price: "48600" },
+    "PhD Science": { available: true, price: "48600" },
+    "PhD Medical": { available: false, price: null },
+
+    "DBA": { available: true, price: "60154" }
+  }
+}
+];
+
+// Collect all programme names from rawData
+const allProgrammes = Array.from(
+  new Set(
+    rawData.flatMap(u => Object.keys(u.programmes))
+  )
+).sort();
+
+// Helper function to translate labels using PROGRAMME_LABELS
+function translateLabel(label, lang) {
+  if (!PROGRAMME_LABELS[label]) return label;
+  return lang === "en" ? PROGRAMME_LABELS[label].en : PROGRAMME_LABELS[label].ar;
+}
+
+// ==========================================================
+//     MAIN REACT APPLICATION (UI + Logic)
+// ==========================================================
+
+function App() {
+  const [search, setSearch] = React.useState("");
+  const [selectedProgramme, setSelectedProgramme] = React.useState("");
+  const [sortOption, setSortOption] = React.useState("default"); // 'default', 'price', 'duration', 'type'
+  const [lang, setLang] = React.useState("en");
+  const [darkMode, setDarkMode] = React.useState(false);
+
+  // Translate helper
+  const t = (en, ar) => (lang === "en" ? en : ar);
+
+  // Apply synonym resolution to search text
+  const resolvedSearch = React.useMemo(() => {
+    if (!search.trim()) return "";
+    return resolveSynonym(search);
+  }, [search]);
+
+  // Filter programme list based on resolved search
+  const filteredProgrammes = React.useMemo(() => {
+    if (!resolvedSearch) return allProgrammes;
+    
+    // Check if resolved search matches a programme key
+    const exactMatch = allProgrammes.find(p => p === resolvedSearch);
+    if (exactMatch) {
+      // If a match is found, automatically select it
+      setSelectedProgramme(exactMatch);
+      return [exactMatch];
+    }
+    
+    // Otherwise filter by translated label
+    return allProgrammes.filter((p) =>
+      translateLabel(p, lang).toLowerCase().includes(resolvedSearch.toLowerCase())
+    );
+  }, [resolvedSearch, lang]);
+
+  // Find and Sort universities that offer selected programme
+  const matchingUniversities = React.useMemo(() => {
+    if (!selectedProgramme) return [];
+
+    // 1. Filter
+    let data = rawData.filter((u) => {
+      const entry = u.programmes[selectedProgramme];
+      return entry && entry.available === true;
+    });
+
+    // 2. Sort
+    if (sortOption === "default") return data;
+
+    return data.sort((a, b) => {
+      const entryA = a.programmes[selectedProgramme];
+      const entryB = b.programmes[selectedProgramme];
+
+      // Helper to parse price
+      const getPrice = (entry) => {
+        if (!entry.price) return Infinity;
+        // Remove commas and convert to float. If 'X' or NaN, return Infinity
+        const val = parseFloat(entry.price.replace(/,/g, '').replace(/[^\d.]/g, ''));
+        return isNaN(val) ? Infinity : val;
+      };
+
+      // Helper to parse duration
+      const getDuration = (uniShortName) => {
+        const idx = UNI_INDEX_MAP[uniShortName];
+        if (idx === undefined) return Infinity;
+        const str = getMatrixData(DURATION_MATRIX, selectedProgramme, idx);
+        
+        if (!str || str === "N/A" || str === "Check Website" || str === "Via Sci") return Infinity;
+        
+        // Handle ranges "1.5 - 2" -> take 1.5
+        const match = str.match(/[\d\.]+/);
+        return match ? parseFloat(match[0]) : Infinity;
+      };
+
+      if (sortOption === "price") {
+        return getPrice(entryA) - getPrice(entryB);
+      }
+
+      if (sortOption === "duration") {
+        return getDuration(a.shortName) - getDuration(b.shortName);
+      }
+
+      if (sortOption === "type") {
+        const typeA = universityTypes[a.shortName] || a.type;
+        const typeB = universityTypes[b.shortName] || b.type;
+        return typeA.localeCompare(typeB);
+      }
+
+      return 0;
+    });
+  }, [selectedProgramme, sortOption]);
+
+  return (
+    <div className={darkMode ? "dark" : ""}>
+      <div className="app-container">
+
+        {/* HEADER */}
+        <div className="header-box">
+          <img className="header-logo"
+              src="https://marine-white-7l1epbg2wn.edgeone.app/cropped-Untitled-design-1_prev_ui-removebg-preview.png" 
+              alt="Logo" />
+          <h1 className="header-title">{t("Malaysia University Programme Finder",
+                 "البحث عن البرامج الجامعية في ماليزيا")}</h1>
+        </div>
+
+        <p className="subtitle">
+          {t(
+            "Choose a programme and see all universities that offer it.",
+            "اختر برنامجًا لرؤية الجامعات التي تقدمه."
+          )}
+        </p>
+
+        {/* TOGGLE BUTTONS */}
+        <div className="controls-row">
+          <button
+            className="lang-btn"
+            onClick={() => setLang(lang === "en" ? "ar" : "en")}
+          >
+            {t("عربي", "English")}
+          </button>
+
+          <button
+            className="mode-btn"
+            onClick={() => setDarkMode(!darkMode)}
+          >
+            {darkMode ? t("Light Mode", "وضع النهار") : t("Dark Mode", "وضع الليل")}
+          </button>
+        </div>
+
+        {/* SEARCH AREA */}
+        <div className="input-card">
+          <label className="input-label">{t("Search Programme", "ابحث عن برنامج")}</label>
+          <input
+            className="input-box"
+            type="text"
+            placeholder={t("Type programme name (e.g., doctor, engineering, IT)…", "اكتب اسم البرنامج (مثل: طبيب، هندسة، تقنية معلومات)…")}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+
+          <label className="input-label">
+            {t("Select Programme", "اختر البرنامج")}
+          </label>
+          <select
+            className="select-box"
+            value={selectedProgramme}
+            onChange={(e) => setSelectedProgramme(e.target.value)}
+          >
+            <option value="">
+              {t("Choose…", "اختر…")}
+            </option>
+
+            {filteredProgrammes.map((p) => (
+              <option key={p} value={p}>
+                {translateLabel(p, lang)}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* RESULTS TITLE & SORT BAR */}
+        <div className="filter-bar">
+           <h2 className="result-title">
+             {t("Universities offering:", "الجامعات التي تقدم:")}{" "}
+             <span className="result-highlight">
+               {selectedProgramme ? translateLabel(selectedProgramme, lang) : ""}
+             </span>
+           </h2>
+
+           {selectedProgramme && matchingUniversities.length > 0 && (
+             <div className="sort-wrapper">
+               <span className="input-label" style={{marginBottom:0}}>
+                 {t("Sort By:", "ترتيب حسب:")}
+               </span>
+               <select 
+                 className="sort-select"
+                 value={sortOption}
+                 onChange={(e) => setSortOption(e.target.value)}
+               >
+                 <option value="default">{t("Default", "افتراضي")}</option>
+                 <option value="price">{t("Price (Low to High)", "السعر (من الأقل للأعلى)")}</option>
+                 <option value="duration">{t("Duration (Shortest)", "المدة (الأقصر)")}</option>
+                 <option value="type">{t("Type (Public/Private)", "النوع (حكومي/خاص)")}</option>
+               </select>
+             </div>
+           )}
+        </div>
+
+        {/* RESULTS AREA */}
+        {!selectedProgramme ? (
+          <p className="info-message">
+            {t("Please choose a programme.", "يرجى اختيار برنامج.")}
+          </p>
+        ) : matchingUniversities.length === 0 ? (
+          <p className="no-result">
+            {t("No matching universities found.", "لا توجد جامعات مطابقة.")}
+          </p>
+        ) : (
+          <div className="uni-grid">
+            {matchingUniversities.map((u) => {
+              const entry = u.programmes[selectedProgramme];
+              
+              // Lookup new data from matrices
+              const uniIdx = UNI_INDEX_MAP[u.shortName];
+              const duration = (uniIdx !== undefined) 
+                ? getMatrixData(DURATION_MATRIX, selectedProgramme, uniIdx) 
+                : "N/A";
+              const ielts = (uniIdx !== undefined) 
+                ? getMatrixData(IELTS_MATRIX, selectedProgramme, uniIdx) 
+                : "N/A";
+
+              return (
+                <div key={u.university} className="uni-card">
+                  <div className="uni-name">{u.university}</div>
+
+                  {/* Short Name & Currency Removed */}
+                  
+                  <div className="uni-small">
+                    {t("Type", "النوع")}: {universityTypes[u.shortName] || u.type}
+                  </div>
+
+                  {/* New Duration Field */}
+                  <div className="uni-small">
+                    <strong>{t("Duration", "المدة")}:</strong> {duration} {duration !== "N/A" && duration !== "Check Website" ? t("Years", "سنوات") : ""}
+                  </div>
+                  
+                  {/* New IELTS Field */}
+                  <div className="uni-small">
+                    <strong>{t("IELTS", "الآيلتس")}:</strong> {ielts}
+                  </div>
+
+                  {/* PRICE */}
+                  <div className="price-tag">
+                    {entry.price
+                      ? `${t("Price", "السعر")}: ${entry.price} ${u.currency}`
+                      : t("No price listed", "لا يوجد سعر")}
+                  </div>
+                  
+                  {/* WEBSITE LINK */}
+                  <a href={u.website} target="_blank" rel="noopener noreferrer" className="website-link">
+                    {t("Visit Website", "زيارة الموقع")}
+                  </a>
+
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
+}
+
+// ==========================================================
+//     RENDER APP TO SCREEN
+// ==========================================================
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);
+</script>
+
+</body>
+</html>
